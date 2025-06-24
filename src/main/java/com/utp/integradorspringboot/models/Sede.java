@@ -36,7 +36,6 @@ public class Sede implements Serializable {
     public Sede() {
     }
 
-    // Constructor existente (para crear nuevas sedes sin ID)
     public Sede(String nombreSede, String direccion, String telefonoContacto, Integer capacidadMaxima, Integer autosOcupados) {
         this.nombreSede = nombreSede;
         this.direccion = direccion;
@@ -45,9 +44,8 @@ public class Sede implements Serializable {
         this.autosOcupados = autosOcupados;
     }
 
-    // *** NUEVO CONSTRUCTOR PARA PRUEBAS (CON ID) ***
     public Sede(Long id, String nombreSede, String direccion, String telefonoContacto, Integer capacidadMaxima, Integer autosOcupados) {
-        this.id = id; // Asigna el ID que se pasa
+        this.id = id; 
         this.nombreSede = nombreSede;
         this.direccion = direccion;
         this.telefonoContacto = telefonoContacto;

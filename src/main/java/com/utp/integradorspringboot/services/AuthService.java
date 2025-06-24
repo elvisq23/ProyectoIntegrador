@@ -10,12 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections; // Para Collections.singleton
+import java.util.Collections; 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet; // Importar HashSet
+import java.util.HashSet; 
 
 @Service
 public class AuthService {
@@ -24,7 +24,7 @@ public class AuthService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private RolRepository rolRepository; // Inyectar RolRepository
+    private RolRepository rolRepository; 
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -52,16 +52,13 @@ public class AuthService {
         nuevoUsuario.setCorreo(request.getCorreo());
         nuevoUsuario.setContrasenia(passwordEncoder.encode(request.getPassword()));
         nuevoUsuario.setFechaRegistro(LocalDateTime.now());
-        nuevoUsuario.setEstado(false); // No verificado inicialmente
+        nuevoUsuario.setEstado(false);
 
-        // --- CAMBIOS PARA ROLES ---
-        // Buscar el rol "CONDUCTOR" por su nombre
         Rol rolConductor = rolRepository.findByNombre("CONDUCTOR")
                                     .orElseThrow(() -> new RuntimeException("Rol CONDUCTOR no encontrado. ¡Debe existir en la BD!"));
         Set<Rol> roles = new HashSet<>();
         roles.add(rolConductor);
-        nuevoUsuario.setRoles(roles); // Asignar el Set de roles al usuario
-        // --- FIN CAMBIOS PARA ROLES ---
+        nuevoUsuario.setRoles(roles); 
 
         String verificationCode = "123456";
         nuevoUsuario.setCodigoVerificacion(verificationCode);
@@ -72,7 +69,6 @@ public class AuthService {
         return errors;
     }
 
-    // ... (el método verifyEmail no necesita cambios importantes aquí, ya que el estado se maneja igual)
     public boolean verifyEmail(String email, String code) {
         Optional<Usuario> optionalUser = usuarioRepository.findByCorreo(email);
         if (optionalUser.isPresent()) {
@@ -90,9 +86,9 @@ public class AuthService {
             boolean isVerified = false;
 
             if (isCodeMatch && isNotExpired) {
-                usuario.setEstado(true); // Marcar como verificado
-                usuario.setCodigoVerificacion(null); // Limpiar el código
-                usuario.setFechaExpiracionCodigo(null); // Limpiar la expiración
+                usuario.setEstado(true); 
+                usuario.setCodigoVerificacion(null); 
+                usuario.setFechaExpiracionCodigo(null); 
                 usuarioRepository.save(usuario);
                 isVerified = true;
                 System.out.println("DEBUG (AuthService): Usuario VERIFICADO con éxito.");

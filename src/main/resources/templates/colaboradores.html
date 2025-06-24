@@ -1,15 +1,336 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
-<html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="_layout">
     <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+        <title>UTP Integrador - Colaboradores</title>
+        </head>
+<body>
+
+    <div layout:fragment="content" id="colaboradoresApp" class="container mt-4">
+        <h1>Gestión de Colaboradores</h1>
+
+        <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Buscar por Nombres, DNI o Correo..." v-model="searchQuery" @input="debouncedSearch" autocomplete="new-password">
+        </div>
+
+        <p class="text-end">
+            <button class="btn btn-primary" @click="nuevoColaborador">Nuevo Colaborador</button>
+        </p>
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Sede</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="colaborador in colaboradores" :key="colaborador.id">
+                    <td>{{colaborador.id}}</td>
+                    <td>{{colaborador.nombres}}</td>
+                    <td>{{colaborador.apellidos}}</td>
+                    <td>{{colaborador.dni}}</td>
+                    <td>{{colaborador.telefono}}</td>
+                    <td>{{colaborador.correo}}</td>
+                    <td>{{colaborador.sedeNombre}}</td> <td>{{colaborador.rolNombre}}</td>   <td>{{colaborador.estado ? 'Activo' : 'Inactivo'}}</td>
+                    <td class="text-end">
+                        <button class="btn btn-info me-2" @click="editarColaborador(colaborador.id)" title="Editar">
+                            <i class="bi bi-pencil-square"></i> </button>
+                        <button class="btn btn-danger" @click="eliminarColaborador(colaborador.id)" title="Eliminar">
+                            <i class="bi bi-trash"></i> </button>
+                    </td>
+                </tr>
+                <tr v-if="colaboradores.length === 0">
+                    <td colspan="10" class="text-center">No hay colaboradores registrados o no se encontraron resultados.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="modal fade" tabindex="-1" id="mdlColaborador" aria-labelledby="modalTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle" v-if="colaborador.id == null || colaborador.id == 0">Nuevo Colaborador</h5>
+                        <h5 class="modal-title" id="modalTitle" v-else>Editar Colaborador</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 row">
+                            <label for="nombres" class="col-sm-4 col-form-label">Nombres</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="nombres" v-model="colaborador.nombres" required />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="apellidos" class="col-sm-4 col-form-label">Apellidos</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="apellidos" v-model="colaborador.apellidos" required />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="dni" class="col-sm-4 col-form-label">DNI</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="dni" v-model="colaborador.dni" required />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="telefono" class="col-sm-4 col-form-label">Teléfono</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telefono" v-model="colaborador.telefono" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="correo" class="col-sm-4 col-form-label">Correo</label>
+                            <div class="col-sm-8">
+                                <input type="email" class="form-control" id="correo" v-model="colaborador.correo" required />
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="mb-3 row">
+                            <label for="selectSede" class="col-sm-4 col-form-label">Sede</label>
+                            <div class="col-sm-8">
+                                <select class="form-select" id="selectSede" v-model="colaborador.sedeId" required>
+    <option value="">Seleccione una sede</option>
+    <option v-for="sede in sedes" :key="sede.id" :value="sede.id">
+        {{ sede.nombreSede }}  </option>
+</select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <label for="selectRol" class="col-sm-4 col-form-label">Rol</label>
+                            <div class="col-sm-8">
+                                <select class="form-select" id="selectRol" v-model="colaborador.rolId" required>
+                                    <option value="">Seleccione un rol</option>
+                                    <option v-for="rol in roles" :key="rol.id" :value="rol.id">
+                                        {{ rol.nombre }} </option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" v-if="colaborador.id == null || colaborador.id == 0" @click="guardarActualizarColaborador">Guardar</button>
+                        <button type="button" class="btn btn-primary" v-else @click="guardarActualizarColaborador">Actualizar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" tabindex="-1" id="mdlEliminar" aria-labelledby="deleteModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalTitle">Eliminar Colaborador</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro que quieres eliminar este colaborador? Esta acción lo desactivará.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" @click="confirmarDesactivacion">Eliminar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="script">
+        const API_COLABORADORES_URL = '/api/colaboradores';
+        const API_SEDES_URL = '/api/sedes'; 
+        const API_ROLES_URL = '/api/roles';   
+
+        function debounce(fn, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    fn.apply(this, args);
+                }, delay);
+            };
+        }
+
+        new Vue({
+            el: "#colaboradoresApp",
+            data: {
+                colaboradores: [],
+                colaborador: {
+                    id: null,
+                    nombres: '',
+                    apellidos: '',
+                    dni: '',
+                    telefono: '',
+                    correo: '',
+                    contrasenia: '',
+                    estado: true,
+                    sedeId: '', 
+                    rolId: ''   
+                },
+                sedes: [], 
+                roles: [], 
+                searchQuery: '',
+                idToDelete: null
+            },
+            methods: {
+                listarColaboradores: function () {
+                    let url = API_COLABORADORES_URL;
+                    if (this.searchQuery) {
+                        url += '?search=' + encodeURIComponent(this.searchQuery);
+                    }
+                    this.$http.get(url).then(response => {
+                        this.colaboradores = response.data.filter(c => c.estado === true);
+                    }).catch(error => {
+                        console.error("Error al obtener los colaboradores:", error);
+                        this.colaboradores = [];
+                        alert('Error al cargar los colaboradores. Revisa la consola para más detalles.');
+                    });
+                },
+                
+                listarSedes: function () {
+                    this.$http.get(API_SEDES_URL).then(response => {
+                        this.sedes = response.data || []; 
+                        console.log("Sedes cargadas para select:", this.sedes);
+                    }).catch(error => {
+                        console.error("Error al obtener las sedes:", error.response ? error.response.data : error.message);
+                        this.sedes = [];
+                        alert('Error al cargar las sedes para el formulario. Revisa la consola.');
+                    });
+                },
+                listarRoles: function () {
+                    this.$http.get(API_ROLES_URL).then(response => {
+                        this.roles = response.data || []; 
+                        console.log("Roles cargados para select:", this.roles);
+                    }).catch(error => {
+                        console.error("Error al obtener los roles:", error.response ? error.response.data : error.message);
+                        this.roles = [];
+                        alert('Error al cargar los roles para el formulario. Revisa la consola.');
+                    });
+                },
+
+                nuevoColaborador: function () {
+                    this.colaborador = {
+                        id: null,
+                        nombres: '',
+                        apellidos: '',
+                        dni: '',
+                        telefono: '',
+                        correo: '',
+                        contrasenia: '', 
+                        estado: true,
+                        sedeId: '', 
+                        rolId: ''   
+                    };
+                    $("#mdlColaborador").modal("show"); 
+                },
+
+                editarColaborador: function (id) {
+                    this.$http.get(API_COLABORADORES_URL + '/' + id).then(response => {
+                        const dataColaborador = response.data;
+                        this.colaborador = {
+                            id: dataColaborador.id,
+                            nombres: dataColaborador.nombres,
+                            apellidos: dataColaborador.apellidos,
+                            dni: dataColaborador.dni,
+                            telefono: dataColaborador.telefono,
+                            correo: dataColaborador.correo,
+                            contrasenia: '',
+                            estado: dataColaborador.estado,
+                           
+                            sedeId: dataColaborador.sede ? dataColaborador.sede.id : '', 
+                            rolId: dataColaborador.rol ? dataColaborador.rol.id : ''     
+                        };
+                        $("#mdlColaborador").modal("show");
+                    }).catch(error => {
+                        console.error("Error al obtener el colaborador para editar:", error.response ? error.response.data : error.message);
+                        alert('Error al cargar los datos del colaborador para editar. Revisa la consola.');
+                    });
+                },
+
+                guardarActualizarColaborador: function () {
+                    let promise;
+    const colaboradorParaEnviar = { ...this.colaborador }; 
+
+    console.log("FRONTEND DEBUG: Estado inicial de colaborador.id:", this.colaborador.id);
+    console.log("FRONTEND DEBUG: Estado inicial de colaborador.dni:", this.colaborador.dni);
+    console.log("FRONTEND DEBUG: Estado inicial de colaborador.contrasenia (antes de lógica):", this.colaborador.contrasenia);
+
+    // LÓGICA CLAVE: Asignar DNI como contraseña si es un nuevo registro
+    if (colaboradorParaEnviar.id == null || colaboradorParaEnviar.id == 0) {
+        console.log("FRONTEND DEBUG: Es un nuevo registro. Asignando DNI a contrasenia.");
+        colaboradorParaEnviar.contrasenia = colaboradorParaEnviar.dni;
+    } else {
+        console.log("FRONTEND DEBUG: Es una edición. Eliminando contrasenia del DTO.");
+        
+        delete colaboradorParaEnviar.contrasenia;
+    }
+
+    console.log("FRONTEND DEBUG: Colaborador DTO listo para enviar (contrasenia):", colaboradorParaEnviar.contrasenia);
+    console.log("FRONTEND DEBUG: Colaborador DTO completo listo para enviar:", JSON.stringify(colaboradorParaEnviar, null, 2));
+
+
+    if (colaboradorParaEnviar.id == null || colaboradorParaEnviar.id == 0) {
+        promise = this.$http.post(API_COLABORADORES_URL, colaboradorParaEnviar);
+    } else {
+        promise = this.$http.put(API_COLABORADORES_URL + '/' + colaboradorParaEnviar.id, colaboradorParaEnviar);
+    }
+
+                    promise.then(response => {
+                        alert('Colaborador guardado con éxito!');
+                        $("#mdlColaborador").modal("hide");
+                        this.listarColaboradores(); 
+                    }).catch(error => {
+                        console.error("Error al guardar/actualizar colaborador:", error.response ? error.response.data : error.message);
+                        let errorMessage = 'Error al guardar/actualizar colaborador.';
+                        if (error.response && error.response.data) {
+                            if (error.response.data.message) {
+                                errorMessage = error.response.data.message;
+                            } else if (error.response.data.errors) {
+                                errorMessage = error.response.data.errors.map(e => e.defaultMessage).join(', ');
+                            }
+                        }
+                        alert(errorMessage);
+                    });
+                },
+
+                eliminarColaborador: function (id) {
+                    this.idToDelete = id;
+                    $("#mdlEliminar").modal("show");
+                },
+                confirmarDesactivacion: function () {
+                    this.$http.put(API_COLABORADORES_URL + '/' + this.idToDelete + '/desactivar').then(response => {
+                        alert('Colaborador desactivado con éxito!');
+                        $("#mdlEliminar").modal("hide");
+                        this.listarColaboradores();
+                        this.idToDelete = null;
+                    }).catch(error => {
+                        console.error("Error al desactivar el colaborador:", error.response ? error.response.data : error.message);
+                        alert('Error al desactivar el colaborador. Revisa la consola.');
+                    });
+                },
+                
+                debouncedSearch: debounce(function() {
+                    this.listarColaboradores();
+                }, 500)
+            },
+            mounted: function () {
+                this.listarColaboradores();
+                this.listarSedes();  
+                this.listarRoles();    
+            }
+        });
+    </script>
+</body>
 </html>

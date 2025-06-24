@@ -1,6 +1,6 @@
 package com.utp.integradorspringboot.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore; // <-- ¡Asegúrate de importar esto!
+import com.fasterxml.jackson.annotation.JsonIgnore; 
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,32 +14,27 @@ public class Rol {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String nombre; // Ej: ROLE_CONDUCTOR, ROLE_DUEÑO, ROLE_GERENTE
+    private String nombre; 
 
-    private String descripcion; // Opcional: Para una descripción más detallada del rol
+    private String descripcion; 
 
-    // Relación Many-to-Many con Usuario
-    // mappedBy indica que la relación es "dueña" por el lado de Usuario
+    
     @ManyToMany(mappedBy = "roles")
-    @JsonIgnore // <-- ¡Esta es la línea clave que debes añadir!
+    @JsonIgnore 
     private Set<Usuario> usuarios = new HashSet<>();
 
-    // Constructor por defecto
     public Rol() {
     }
 
-    // Constructor con nombre (útil para inicializar)
     public Rol(String nombre) {
         this.nombre = nombre;
     }
 
-    // Constructor con nombre y descripción
     public Rol(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
     }
 
-    // --- Getters y Setters ---
     public Long getId() {
         return id;
     }

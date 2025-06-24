@@ -1,6 +1,6 @@
 package com.utp.integradorspringboot.services;
 
-import com.utp.integradorspringboot.models.Rol; // Importar Rol
+import com.utp.integradorspringboot.models.Rol; 
 import com.utp.integradorspringboot.models.Usuario;
 import com.utp.integradorspringboot.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection; // Importar Collection
-import java.util.stream.Collectors; // Importar Collectors
+import java.util.Collection; 
+import java.util.stream.Collectors; 
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -30,17 +30,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Usuario no verificado o inactivo: " + correo);
         }
 
-        // --- CAMBIOS PARA ROLES ---
-        // Convertir los roles de la entidad Rol a GrantedAuthority de Spring Security
+        
         Collection<? extends GrantedAuthority> authorities = usuario.getRoles().stream()
-            .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.getNombre())) // Convención de Spring Security: ROLE_NOMBRE_DEL_ROL
+            .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.getNombre())) 
             .collect(Collectors.toList());
-        // --- FIN CAMBIOS PARA ROLES ---
 
         return User.builder()
                 .username(usuario.getCorreo())
                 .password(usuario.getContrasenia())
-                .authorities(authorities) // Usar las autoridades generadas
+                .authorities(authorities) 
                 .build();
     }
 }

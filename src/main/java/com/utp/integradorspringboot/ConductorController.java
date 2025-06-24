@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 @Controller
-@RequestMapping("/conductores") // Todas las rutas aquí empezarán con /conductores
+@RequestMapping("/conductores") 
 public class ConductorController {
 
     @Autowired
@@ -19,13 +19,8 @@ public class ConductorController {
 
     @GetMapping
     public String listConductores(Model model) {
-        // Inicialmente no se pasa un query de búsqueda, Vue.js lo manejará
         List<Usuario> conductores = conductorService.getAllConductores(null);
-        model.addAttribute("conductores", conductores); // Vue.js no usará directamente este modelAttribute
-                                                        // pero es buena práctica tenerlo si algo fallara con Vue
-        return "conductores"; // Retorna el nombre del archivo HTML sin la extensión y sin subcarpeta
+        model.addAttribute("conductores", conductores); 
+        return "conductores"; 
     }
-
-    // Los métodos para "new", "edit", "delete" vía Thymeleaf ya no son necesarios
-    // porque Vue.js los manejará a través de la API REST.
 }

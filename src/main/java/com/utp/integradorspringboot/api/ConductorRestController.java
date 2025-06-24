@@ -23,7 +23,6 @@ public class ConductorRestController {
      @GetMapping
     public ResponseEntity<List<Usuario>> getAllConductores(@RequestParam(required = false) String search) {
         List<Usuario> conductores = conductorService.getAllConductores(search);
-        // Limpiar la contraseña antes de enviar al frontend por seguridad
         conductores.forEach(u -> u.setContrasenia(null));
         return ResponseEntity.ok(conductores);
     }
@@ -32,7 +31,7 @@ public class ConductorRestController {
     public ResponseEntity<Usuario> getConductorById(@PathVariable Long id) {
         return conductorService.getConductorById(id)
                 .map(conductor -> {
-                    conductor.setContrasenia(null); // Limpiar contraseña antes de enviar
+                    conductor.setContrasenia(null); 
                     return ResponseEntity.ok(conductor);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -45,7 +44,7 @@ public class ConductorRestController {
         }
         try {
             Usuario newConductor = conductorService.saveConductor(request);
-            newConductor.setContrasenia(null); // Limpiar contraseña
+            newConductor.setContrasenia(null); 
             return new ResponseEntity<>(newConductor, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -61,7 +60,7 @@ public class ConductorRestController {
         }
         try {
             Usuario updatedConductor = conductorService.updateConductor(id, request);
-            updatedConductor.setContrasenia(null); // Limpiar contraseña
+            updatedConductor.setContrasenia(null); 
             return ResponseEntity.ok(updatedConductor);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -70,13 +69,13 @@ public class ConductorRestController {
         }
     }
 
-    @DeleteMapping("/{id}") // El endpoint sigue siendo DELETE, pero la acción es desactivar
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateConductor(@PathVariable Long id) {
         try {
-            conductorService.deactivateConductor(id); // Llama al método de desactivación
-            return ResponseEntity.noContent().build(); // 204 No Content para indicar éxito sin contenido
+            conductorService.deactivateConductor(id); 
+            return ResponseEntity.noContent().build(); 
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // O un 400 Bad Request si el ID no es de un conductor
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
         }
     }
 }

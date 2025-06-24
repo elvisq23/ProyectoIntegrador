@@ -7,8 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler; // NECESARIO
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler; // NECESARIO
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler; 
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -23,8 +23,8 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
-        handler.setDefaultTargetUrl("/sedes"); // URL a la que redirigir después de un login exitoso
-        handler.setAlwaysUseDefaultTargetUrl(true); // Siempre redirige a /sedes
+        handler.setDefaultTargetUrl("/sedes"); 
+        handler.setAlwaysUseDefaultTargetUrl(true); 
         return handler;
     }
 
@@ -39,7 +39,7 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/login"),
                     new AntPathRequestMatcher("/register"),
                     new AntPathRequestMatcher("/verify-email"),
-                    new AntPathRequestMatcher("/api/auth/**"), // Permite acceso a los POST de registro/verificación
+                    new AntPathRequestMatcher("/api/auth/**"), 
                     new AntPathRequestMatcher("/css/**"),
                     new AntPathRequestMatcher("/js/**"),
                     new AntPathRequestMatcher("/images/**"),
@@ -47,16 +47,16 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/error")
                 ).permitAll()
                 .requestMatchers(
-                    new AntPathRequestMatcher("/sedes"), // <--- Requiere autenticación
-                    new AntPathRequestMatcher("/api/sedes/**") // <--- Requiere autenticación
+                    new AntPathRequestMatcher("/sedes"), 
+                    new AntPathRequestMatcher("/api/sedes/**") 
                 ).authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .loginProcessingUrl("/authenticate") // La URL a la que el formulario de login enviará las credenciales
-                .successHandler(authenticationSuccessHandler()) // Usa el manejador de éxito
-                .failureUrl("/login?error=true") // Redirige con error si el login falla
+                .loginProcessingUrl("/authenticate") 
+                .successHandler(authenticationSuccessHandler()) 
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout

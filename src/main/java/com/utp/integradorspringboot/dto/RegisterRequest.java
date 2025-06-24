@@ -1,4 +1,4 @@
-package com.utp.integradorspringboot.dto; // CORRECTO
+package com.utp.integradorspringboot.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -31,7 +31,6 @@ public class RegisterRequest {
     @NotBlank(message = "Confirma tu contraseña")
     private String confirmPassword;
 
-    // --- Getters y Setters ---
     public String getNombres() { return nombres; }
     public void setNombres(String nombres) { this.nombres = nombres; }
     public String getApellidos() { return apellidos; }
