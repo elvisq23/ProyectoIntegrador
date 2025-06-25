@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html layout:decorate="_layout_mecanico">
+<head>
+    <title>MetalCars - Diagnóstico de Vehículos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .main-content {
+            margin-right: 240px;
+            padding: 80px 2rem 2rem 2rem;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+        .table th {
+            font-size: 14px;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+        .form-control::placeholder {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" id="appDiagnostico">
+    <div class="main-content">
+        
+      <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="mb-0">Vehículos en Diagnóstico:</h1>
+        <input type="text" class="form-control w-50 me-3" v-model="filtro" placeholder="Buscar por conductor o placa...">
+            
+        </div>
+
+       
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Conductor</th>
+                    <th>Vehículo</th>
+                    <th>Placa</th>
+                    <th>Diagnóstico</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in ordenesFiltradas" :key="item.id">
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.vehiculo?.nombreConductor || 'N/D' }}</td>
+                    <td>{{ item.vehiculo?.marca }} {{ item.vehiculo?.modelo }}</td>
+                    <td>{{ item.vehiculo?.placa }}</td>
+                    <td>
+                        <span v-if="item.diagnostico?.descripcion">{{ item.diagnostico.descripcion }}</span>
+                        <span v-else class="text-muted">Sin diagnóstico</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" @click="abrirModal(item)">Diagnosticar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Diagnóstico -->
+    <div class="modal fade" id="modalDiagnostico" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar Diagnóstico</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" v-model="diagnostico.descripcion" rows="5" placeholder="Descripción del diagnóstico..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @click="guardarDiagnostico">Guardar</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    new Vue({
+        el: "#appDiagnostico",
+        data: {
+            ordenesProceso: [],
+            filtro: '',
+            diagnostico: {
+                descripcion: '',
+                ordenServicioId: null
+            }
+        },
+        computed: {
+            ordenesFiltradas() {
+                const texto = this.filtro.toLowerCase();
+                return this.ordenesProceso.filter(item => {
+                    const conductor = item.vehiculo?.nombreConductor?.toLowerCase() || '';
+                    const placa = item.vehiculo?.placa?.toLowerCase() || '';
+                    return conductor.includes(texto) || placa.includes(texto);
+                });
+            }
+        },
+        methods: {
+            listarEnProceso() {
+                this.$http.get('/api/ordenes/estado/EN_PROCESO').then(res => {
+                    this.ordenesProceso = res.data;
+                });
+            },
+            abrirModal(item) {
+                this.diagnostico.descripcion = '';
+                this.diagnostico.ordenServicioId = item.id;
+                var modal = new bootstrap.Modal(document.getElementById('modalDiagnostico'));
+                modal.show();
+            },
+            guardarDiagnostico() {
+                if (!this.diagnostico.descripcion) {
+                    alert("La descripción no puede estar vacía.");
+                    return;
+                }
+                this.$http.post('/api/diagnosticos', {
+                    descripcion: this.diagnostico.descripcion,
+                    ordenServicioId: this.diagnostico.ordenServicioId
+                }).then(() => {
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('modalDiagnostico'));
+                    modal.hide();
+                    this.listarEnProceso();
+                }).catch(() => {
+                    alert("Error al guardar el diagnóstico.");
+                });
+            }
+        },
+        mounted() {
+            this.listarEnProceso();
+        }
+    });
+</script>
+</body>
+</html>
+
