@@ -28,20 +28,32 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
 
-            if (role.equals("ROLE_ADMIN")) {
-                response.sendRedirect("/admin");
+            if (role.equals("ROLE_DUEÑO")) {
+                response.sendRedirect("/dueno/dueno_dashboard");
                 return;
             } else if (role.equals("ROLE_MECANICO")) {
-                response.sendRedirect("/asignaciones");
+                response.sendRedirect("/mecanico/mecanico_asignaciones");
                 return;
-            } else if (role.equals("ROLE_RECEPCIONISTA")) {
-                response.sendRedirect("/recepcion");
+            } else if (role.equals("ROLE_ASESOR")) {
+                response.sendRedirect("/asesor/asesor_registrar_llegada");
+                return;
+            } else if (role.equals("ROLE_CONDUCTOR")) {
+                response.sendRedirect("/conductor/conductor_vehiculo");
+                return;
+            } else if (role.equals("ROLE_GERENTE")) {
+                response.sendRedirect("/gerente/gerente_usuarios");
+                return;
+            } else if (role.equals("ROLE_CAJERO")) {
+                response.sendRedirect("/cajero/cajero_emitir_pagos");
+                return;
+            } else if (role.equals("ROLE_ALMACEN")) {
+                response.sendRedirect("/almacen/almacen_entrada_repuestos");
                 return;
             }
         }
 
         // Redirección por defecto si el rol no coincide
-        response.sendRedirect("/default");
+        response.sendRedirect("/PaginaRolNoCoincide");
         
         System.out.println("DEBUG: Entrando a onAuthenticationSuccess");
 System.out.println("DEBUG: Roles del usuario autenticado:");
