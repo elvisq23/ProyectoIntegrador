@@ -23,4 +23,5 @@ public class ConductorController {
         model.addAttribute("conductores", conductores); 
         return "conductores"; 
     }
+   
 }
