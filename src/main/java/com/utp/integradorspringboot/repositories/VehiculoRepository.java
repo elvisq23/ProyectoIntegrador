@@ -6,6 +6,12 @@ package com.utp.integradorspringboot.repositories;
 
 import com.utp.integradorspringboot.models.Vehiculo;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer> {
+import java.util.List;
+
+@Repository
+public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
+    List<Vehiculo> findByPlacaContaining(String placa);
+    List<Vehiculo> findByMarcaContaining(String marca);
 }
