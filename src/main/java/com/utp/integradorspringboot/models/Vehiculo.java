@@ -1,11 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.utp.integradorspringboot.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "vehiculos")
@@ -15,41 +17,79 @@ public class Vehiculo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "marca", length = 30, nullable = false)
-    private String marca;
-
-    @Column(name = "modelo", length = 30, nullable = false)
-    private String modelo;
-
-    @Column(name = "placa", length = 10, nullable = false, unique = true)
+    @Column(name = "placa", unique = true, nullable = false, length = 10)
+    @NotNull(message = "La placa es obligatoria")
+    @Size(min = 6, max = 10, message = "La placa debe tener entre 6 y 10 caracteres")
     private String placa;
 
-    @Column(name = "nombre_conductor", length = 50)
-    private String nombreConductor;
+    @Column(name = "marca", nullable = false, length = 50)
+    @NotNull(message = "La marca es obligatoria")
+    private String marca;
 
-    // ----- Constructores -----
+    @Column(name = "modelo", nullable = false, length = 50)
+    @NotNull(message = "El modelo es obligatorio")
+    private String modelo;
 
+    @Column(name = "anio", nullable = false)
+    @NotNull(message = "El año es obligatorio")
+    @Min(value = 1900, message = "El año debe ser mayor a 1900")
+    @Max(value = 2100, message = "El año debe ser menor a 2100")
+    private Integer anio;
+
+    @Column(name = "color", nullable = false, length = 30)
+    @NotNull(message = "El color es obligatorio")
+    private String color;
+
+    // Relaciones (opcional: comentadas si no se usan directamente en la landing)
+    /*@OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Reserva> reservas;
+
+    @OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Diagnostico> diagnosticos;
+
+    @OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Reparacion> reparaciones;*/
+
+    // Constructor vacío
     public Vehiculo() {
     }
 
-    public Vehiculo(Integer id, String marca, String modelo, String placa, String nombreConductor) {
-        this.id = id;
+    // Constructor principal (sin ID)
+    public Vehiculo(String placa, String marca, String modelo, Integer anio, String color) {
+        this.placa = placa;
         this.marca = marca;
         this.modelo = modelo;
-        this.placa = placa;
-        this.nombreConductor = nombreConductor;
+        this.anio = anio;
+        this.color = color;
     }
 
-    // ----- Getters y Setters -----
+    // Constructor adicional (con ID)
+    public Vehiculo(Long id, String placa, String marca, String modelo, Integer anio, String color) {
+        this.id = id;
+        this.placa = placa;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anio = anio;
+        this.color = color;
+    }
 
-    public Integer getId() {
+    // Getters y Setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getPlaca() {
+        return placa;
+    }
+
+    public void setPlaca(String placa) {
+        this.placa = placa;
     }
 
     public String getMarca() {
@@ -68,27 +108,49 @@ public class Vehiculo implements Serializable {
         this.modelo = modelo;
     }
 
-    public String getPlaca() {
-        return placa;
+    public Integer getAnio() {
+        return anio;
     }
 
-    public void setPlaca(String placa) {
-        this.placa = placa;
+    public void setAnio(Integer anio) {
+        this.anio = anio;
     }
 
-    public String getNombreConductor() {
-        return nombreConductor;
+    public String getColor() {
+        return color;
     }
 
-    public void setNombreConductor(String nombreConductor) {
-        this.nombreConductor = nombreConductor;
+    public void setColor(String color) {
+        this.color = color;
     }
 
-   
+    /*public Set<Reserva> getReservas() {
+        return reservas;
+    }
+
+    public void setReservas(Set<Reserva> reservas) {
+        this.reservas = reservas;
+    }
+
+    public Set<Diagnostico> getDiagnosticos() {
+        return diagnosticos;
+    }
+
+    public void setDiagnosticos(Set<Diagnostico> diagnosticos) {
+        this.diagnosticos = diagnosticos;
+    }
+
+    public Set<Reparacion> getReparaciones() {
+        return reparaciones;
+    }
+
+    public void setReparaciones(Set<Reparacion> reparaciones) {
+        this.reparaciones = reparaciones;
+    }*/
 
     @Override
     public int hashCode() {
-        return (id != null ? id.hashCode() : 0);
+        return Objects.hash(id);
     }
 
     @Override
@@ -97,17 +159,18 @@ public class Vehiculo implements Serializable {
             return false;
         }
         Vehiculo other = (Vehiculo) object;
-        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
+        return Objects.equals(this.id, other.id);
     }
 
     @Override
     public String toString() {
         return "Vehiculo{" +
                 "id=" + id +
+                ", placa='" + placa + '\'' +
                 ", marca='" + marca + '\'' +
                 ", modelo='" + modelo + '\'' +
-                ", placa='" + placa + '\'' +
-                ", nombreConductor='" + nombreConductor + '\'' +
+                ", anio=" + anio +
+                ", color='" + color + '\'' +
                 '}';
     }
 }

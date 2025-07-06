@@ -39,6 +39,19 @@ public class Usuario {
 
     public Usuario() {}
 
+    public Usuario(String nombres, String apellidos, String dni, String telefono, String ruc, String correo, String contrasenia, LocalDateTime fechaRegistro, Boolean estado, Sede sede) {
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+        this.dni = dni;
+        this.telefono = telefono;
+        this.ruc = ruc;
+        this.correo = correo;
+        this.contrasenia = contrasenia;
+        this.fechaRegistro = fechaRegistro;
+        this.estado = estado;
+        this.sede = sede;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNombres() { return nombres; }
