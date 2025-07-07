@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
 @Table(name = "usuarios") 
 public class Usuario {
@@ -12,7 +13,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombres;
+   private String nombres;
     private String apellidos;
     private String dni;
     private String telefono;
