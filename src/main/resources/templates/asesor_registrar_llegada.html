@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="_layout_asesor">
+<head>
+  <title>UTP Integrador - asesor</title>
+  <style>
+    .main-content {
+      margin-right: 240px;
+      padding: 80px 2rem 2rem 2rem;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+    .search-input {
+      max-width: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div layout:fragment="content" id="appLlegadas">
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Registro de llegada de vehículos</h1>
+
+        <button class="btn btn-success me-3" @click="abrirModalNueva">
+          Nuevo&nbsp;<strong>+</strong>
+        </button>
+
+        <input type="text" class="form-control w-50" v-model="filtro" placeholder="Buscar por cliente o placa…"/>
+      </div>
+
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Marca / Modelo</th>
+            <th>Placa</th>
+            <th>Color</th>
+            <th>Fecha & Hora</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, i) in llegadasFiltradas" :key="item.id">
+            <td>{{ i + 1 }}</td>
+            <td>{{ item.cliente }}</td>
+            <td>{{ item.marca }} {{ item.modelo }}</td>
+            <td>{{ item.placa }}</td>
+            <td>{{ item.color }}</td>
+            <td>{{ new Date(item.fechaHora).toLocaleString() }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" @click="abrirModalEditar(item)">
+                Editar
+              </button>
+            </td>
+          </tr>
+          <tr v-if="!llegadasFiltradas.length">
+            <td colspan="7" class="text-center text-muted">Sin registros</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Nueva / Editar llegada -->
+    <div class="modal fade" id="modalLlegada" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ llegada.id ? 'Editar' : 'Nueva' }} llegada</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-2">
+              <label class="form-label">Cliente</label>
+              <input type="text" class="form-control" v-model="llegada.cliente"/>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <label class="form-label">Marca</label>
+                <input type="text" class="form-control" v-model="llegada.marca"/>
+              </div>
+              <div class="col-md-6 mb-2">
+                <label class="form-label">Modelo</label>
+                <input type="text" class="form-control" v-model="llegada.modelo"/>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <label class="form-label">Placa</label>
+                <input type="text" class="form-control" v-model="llegada.placa"/>
+              </div>
+              <div class="col-md-6 mb-2">
+                <label class="form-label">Color</label>
+                <input type="text" class="form-control" v-model="llegada.color"/>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Fecha y hora</label>
+              <input type="datetime-local" class="form-control" v-model="llegada.fechaHora"/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="guardarLlegada">Guardar</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vue Script -->
+  <script layout:fragment="script">
+    new Vue({
+      el: "#appLlegadas",
+      data() {
+        return {
+          llegadas: [],
+          filtro: "",
+          llegada: {
+            id: null,
+            cliente: "",
+            marca: "",
+            modelo: "",
+            placa: "",
+            color: "",
+            fechaHora: "",
+          },
+        };
+      },
+      computed: {
+        llegadasFiltradas() {
+          const t = this.filtro.trim().toLowerCase();
+          return this.llegadas.filter((l) =>
+            l.cliente.toLowerCase().includes(t) || l.placa.toLowerCase().includes(t)
+          );
+        },
+      },
+      methods: {
+        listar() {
+          this.$http.get("/api/llegadas").then((res) => {
+            this.llegadas = res.data;
+          });
+        },
+        abrirModalNueva() {
+          this.llegada = {
+            id: null,
+            cliente: "",
+            marca: "",
+            modelo: "",
+            placa: "",
+            color: "",
+            fechaHora: new Date().toISOString().slice(0, 16),
+          };
+          new bootstrap.Modal(document.getElementById("modalLlegada")).show();
+        },
+        abrirModalEditar(item) {
+          this.llegada = { ...item };
+          this.llegada.fechaHora = item.fechaHora.slice(0, 16);
+          new bootstrap.Modal(document.getElementById("modalLlegada")).show();
+        },
+        guardarLlegada() {
+          const carga = { ...this.llegada };
+          if (typeof carga.fechaHora === "string") {
+            carga.fechaHora = new Date(carga.fechaHora).toISOString();
+          }
+
+          if (carga.id) {
+            this.$http.put(`/api/llegadas/${carga.id}`, carga).then(() => {
+              bootstrap.Modal.getInstance(document.getElementById("modalLlegada")).hide();
+              this.listar();
+            });
+          } else {
+            this.$http.post("/api/llegadas", carga).then(() => {
+              bootstrap.Modal.getInstance(document.getElementById("modalLlegada")).hide();
+              this.listar();
+            });
+          }
+        },
+      },
+      mounted() {
+        this.listar();
+      },
+    });
+  </script>
+</body>
+</html>
