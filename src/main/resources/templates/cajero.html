@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title>Módulo de Cajero</title>
+</head>
+<body>
+
+<div layout:fragment="content" id="cajeroApp" class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Módulo de Cajero</h2>
+            <p class="text-muted">Gestión de órdenes de servicio y pagos.</p>
+        </div>
+        <div class="cajero-actions">
+            <button class="btn btn-primary" @click="emitirFactura">Emitir Factura</button>
+            <button class="btn btn-secondary" @click="emitirBoleta">Emitir Boleta</button>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" v-model="searchQuery" @input="debouncedSearch" placeholder="Buscar por cliente, placa...">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+            <tr>
+                <th>N° Orden</th>
+                <th>Cliente</th>
+                <th>Vehículo</th>
+                <th>Placa</th>
+                <th class="text-end">Monto</th>
+                <th class="text-center">Acción</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-if="filteredOrdenes.length === 0">
+                <td colspan="6" class="text-center text-muted">No hay órdenes de servicio registradas o no se encontraron resultados.</td>
+            </tr>
+            <tr v-for="orden in filteredOrdenes" :key="orden.id">
+                <td>{{ orden.id }}</td>
+                <td>{{ orden.clienteNombres }} {{ orden.clienteApellidos }}</td>
+                <td>{{ orden.vehiculoMarca }} {{ orden.vehiculoModelo }}</td>
+                <td>{{ orden.vehiculoPlaca }}</td>
+                <td class="text-end">{{ formatCurrency(orden.montoTotal) }}</td>
+                <td class="text-center">
+                    <button class="btn btn-info btn-sm" @click="verDetalles(orden.id)">
+                        Ver Detalles
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="mdlDetallesFactura" tabindex="-1" aria-labelledby="modalDetallesFacturaTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetallesFacturaTitle">Detalle de la Orden de Servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detalleFacturaContent">
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" @click="descargarFactura">Descargar PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    const API_ORDENES_SERVICIO_URL = '/api/ordenes-servicio';
+
+    function debounce(fn, delay) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                fn.apply(this, args);
+            }, delay);
+        };
+    }
+
+    const CajeroAppConfig = {
+        data: {
+            ordenes: [],
+            searchQuery: '',
+            selectedOrdenId: null
+        },
+        computed: {
+            filteredOrdenes() {
+                if (!this.searchQuery) {
+                    return this.ordenes;
+                }
+                const lowerQuery = this.searchQuery.toLowerCase();
+                return this.ordenes.filter(orden =>
+                    (orden.clienteNombres.toLowerCase() + ' ' + orden.clienteApellidos.toLowerCase()).includes(lowerQuery) ||
+                    orden.vehiculoPlaca.toLowerCase().includes(lowerQuery)
+                );
+            }
+        },
+        methods: {
+            listarOrdenes() {
+                this.$http.get(API_ORDENES_SERVICIO_URL).then(response => {
+                    this.ordenes = response.data;
+                }).catch(error => {
+                    console.error("Error al listar órdenes:", error);
+                });
+            },
+            verDetalles(ordenId) {
+                this.selectedOrdenId = ordenId;
+                this.$http.get(`${API_ORDENES_SERVICIO_URL}/${ordenId}`).then(response => {
+                    const orden = response.data;
+                    let detallesHtml = '';
+
+                    // --- CAMBIO CLAVE: Obtiene el monto total directamente de la orden ---
+                    const montoReal = orden.montoTotal || 0;
+                    const subtotal = montoReal / 1.18;
+                    const igv = montoReal - subtotal;
+
+                    // Esto se mantiene para mostrar la tabla, incluso si está vacía
+                    if (orden.detalles && orden.detalles.length > 0) {
+                        orden.detalles.forEach(item => {
+                            const importe = item.cantidad * item.precioUnitario;
+                            detallesHtml += `
+                                <tr>
+                                    <td>${item.cantidad}</td>
+                                    <td>${item.descripcion}</td>
+                                    <td class="text-end">${this.formatCurrency(item.precioUnitario)}</td>
+                                    <td class="text-end">${this.formatCurrency(importe)}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        detallesHtml = `<tr><td colspan="4" class="text-center text-muted">No hay detalles para esta orden.</td></tr>`;
+                    }
+
+                    const fecha = new Date(orden.fechaCreacion);
+                    const fechaFormateada = `${String(fecha.getDate()).padStart(2, '0')}/${String(fecha.getMonth() + 1).padStart(2, '0')}/${fecha.getFullYear()}`;
+                    const rucCliente = orden.clienteRuc || 'N/A';
+
+                    let htmlCompleto = `
+                        <div class="p-3">
+                            <h4 class="text-center mb-4">FACTURA N° ${String(orden.id).padStart(3, '0')}</h4>
+                            <p><strong>Cliente:</strong> ${orden.clienteNombres} ${orden.clienteApellidos}</p>
+                            <p><strong>RUC:</strong> ${rucCliente}</p>
+                            <p><strong>Fecha:</strong> ${fechaFormateada}</p>
+                            <hr>
+                            <table class="table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Cant.</th>
+                                        <th>Descripción</th>
+                                        <th class="text-end">P. Unitario</th>
+                                        <th class="text-end">Importe</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${detallesHtml}</tbody>
+                            </table>
+                            <hr>
+                            <div class="row justify-content-end">
+                                <div class="col-md-5 col-lg-4">
+                                    <p class="d-flex justify-content-between"><span>SUBTOTAL:</span> <strong>${this.formatCurrency(subtotal)}</strong></p>
+                                    <p class="d-flex justify-content-between"><span>I.G.V. (18%):</span> <strong>${this.formatCurrency(igv)}</strong></p>
+                                    <h5 class="d-flex justify-content-between mt-2"><span>TOTAL:</span> <strong>${this.formatCurrency(montoReal)}</strong></h5>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('detalleFacturaContent').innerHTML = htmlCompleto;
+                    $('#mdlDetallesFactura').modal('show');
+                }).catch(error => {
+                    console.error(`Error al obtener detalles de la orden ${ordenId}:`, error);
+                });
+            },
+            descargarFactura() {
+                if (this.selectedOrdenId) {
+                    window.open(`${API_ORDENES_SERVICIO_URL}/${this.selectedOrdenId}/pdf`, '_blank');
+                }
+            },
+            emitirFactura() {
+                alert('Función "Emitir Factura" por implementar.');
+            },
+            emitirBoleta() {
+                alert('Función "Emitir Boleta" por implementar.');
+            },
+            formatCurrency(value) {
+                if (typeof value !== 'number') return 'S/ 0.00';
+                return `S/ ${value.toFixed(2)}`;
+            },
+            debouncedSearch: debounce(function() { this.listarOrdenes(); }, 500)
+        },
+        mounted() {
+            this.listarOrdenes();
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('cajeroApp')) {
+            const app = new Vue({
+                el: '#cajeroApp',
+                ...CajeroAppConfig
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
