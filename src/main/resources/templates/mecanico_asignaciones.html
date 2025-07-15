@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html layout:decorate="_layout_mecanico">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}" th:with="pageTitle='MetalCars - Órdenes de Servicio'">
 <head>
     <title>MetalCars - Órdenes de Servicio</title>
-    <style>
+    <style layout:fragment="css-specific">
         .main-content {
             margin-right: 240px;
             padding: 80px 2rem 2rem 2rem;
@@ -30,11 +32,11 @@
 <body>
 <div layout:fragment="content" id="app">
     <div class="main-content">
-       
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>Vehículos Asignados:</h1>
             <input type="text" class="form-control search-input" v-model="filtro" placeholder="Buscar por cliente o placa...">
-            
+
         </div>
 
         <table class="table table-bordered">

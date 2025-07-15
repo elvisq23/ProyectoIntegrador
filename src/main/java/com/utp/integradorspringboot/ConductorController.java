@@ -1,27 +1,21 @@
+// src/main/java/com/utp/integradorspringboot/controllers/ConductorController.java
+// (Asegúrate de que el paquete sea el correcto, diferente de 'api')
 package com.utp.integradorspringboot;
 
-import com.utp.integradorspringboot.models.Usuario;
-import com.utp.integradorspringboot.services.ConductorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
-
-@Controller
-@RequestMapping("/conductores") 
+@Controller // Indispensable para controladores web que devuelven vistas
+// No uses @RequestMapping a nivel de clase si quieres que la URL sea /conductores
 public class ConductorController {
 
-    @Autowired
-    private ConductorService conductorService;
-
-    @GetMapping
-    public String listConductores(Model model) {
-        List<Usuario> conductores = conductorService.getAllConductores(null);
-        model.addAttribute("conductores", conductores); 
-        return "conductores"; 
+    @GetMapping("/conductores") // Esta es la ruta web para la vista
+    public String viewConductores(Model model) {
+        model.addAttribute("pageTitle", "Gestión de Conductores");
+        // Asegúrate de que tienes un archivo Thymeleaf llamado 'conductores.html'
+        // en src/main/resources/templates/
+        return "conductores"; // Esto devuelve el nombre de la plantilla HTML
     }
-   
 }

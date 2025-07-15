@@ -18,5 +18,4 @@ public class MecanicoWebController {
         return "mecanico_asignaciones";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol mecánico
 }

@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="_layout_dueno">
+      layout:decorate="_layout"
+      th:with="pageTitle='UTP Integrador - Sedes'">
     <head>
         <title>UTP Integrador - Sedes</title>
-            <style>
-        .main-content {
-            margin-right: 240px;
-            padding: 80px 2rem 2rem 2rem;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .search-input {
-            max-width: 300px;
-        }
-    </style>
-        </head>
+        <style layout:fragment="css-specific">
+            .main-content {
+                margin-right: 240px;
+                padding: 80px 2rem 2rem 2rem;
+            }
+            h1 {
+                font-size: 24px;
+                font-weight: bold;
+                margin: 0;
+            }
+
+            .search-input {
+                max-width: 300px;
+            }
+        </style>
+    </head>
 <body>
 
     <div layout:fragment="content" id="sedesApp" class="container mt-4">
@@ -55,10 +56,10 @@
                     <td>{{item.autosOcupados}}</td>
                     <td class="text-end">
                         <button class="btn btn-info me-2" @click="editar(item.id)" title="Editar">
-                            <i class="bi bi-pencil-square"></i> 
+                            <i class="bi bi-pencil-square"></i>
                         </button>
                         <button class="btn btn-danger" @click="eliminar(item.id)" title="Eliminar">
-                            <i class="bi bi-trash"></i> 
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

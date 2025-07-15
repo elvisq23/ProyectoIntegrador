@@ -1,38 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="_layout_dueno">
-    <head>
-        <title>UTP Integrador - Dueño</title>
-            <style>
-        .main-content {
-            margin-right: 240px;
-            padding: 80px 2rem 2rem 2rem;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0;
-        }
-        
+      layout:decorate="~{_layout}"
+      th:with="pageTitle='Dashboard del Dueño'">
+
+<head>
+    <style layout:fragment="css-specific">
+        /* Add styles specific to this page here if needed, otherwise include in _layout.html */
         .search-input {
             max-width: 300px;
         }
     </style>
-        </head>
+</head>
+
 <body>
-
-    <div layout:fragment="content" id="colaboradoresApp" class="container mt-4">
-        <h1>dashboard del dueño</h1>
-
-       
-
-        
-
-
-
+    <main layout:fragment="content">
+        <div class="container mt-4">
+            <h1>Dashboard del Dueño</h1>
+            <p>Bienvenido, Dueño. Aquí podrás ver un resumen de tu negocio.</p>
         </div>
-   
+    </main>
 
 </body>
 </html>

@@ -13,6 +13,11 @@ public class IndexController {
         return "index";
     }
 
+    @GetMapping("/index") // Para la URL /index explícita
+    public String showIndexPage() {
+        return "index"; // Devuelve el nombre de tu archivo HTML (index.html)
+    }
+    
     @GetMapping("/login")
     public String loginPage() {
         return "login";

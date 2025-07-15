@@ -1,12 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.utp.integradorspringboot.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -25,10 +22,19 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
+        // Elimina estas líneas de System.out.println después de verificar que todo funciona
+        System.out.println("DEBUG: Entrando a onAuthenticationSuccess");
+        System.out.println("DEBUG: Roles del usuario autenticado:");
+        for (GrantedAuthority authority : authorities) {
+            System.out.println(" - " + authority.getAuthority());
+        }
+
+        // Iterar sobre las autoridades para encontrar el rol principal del usuario
         for (GrantedAuthority authority : authorities) {
             String role = authority.getAuthority();
 
-            if (role.equals("ROLE_DUEÑO")) {
+            // CAMBIO CRÍTICO AQUÍ: "ROLE_DUEÑO" a "ROLE_DUENO" (sin la Ñ)
+            if (role.equals("ROLE_DUENO")) {
                 response.sendRedirect("/dueno/dueno_dashboard");
                 return;
             } else if (role.equals("ROLE_MECANICO")) {
@@ -52,16 +58,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             }
         }
 
-        // Redirección por defecto si el rol no coincide
-        response.sendRedirect("/PaginaRolNoCoincide");
-        
-        System.out.println("DEBUG: Entrando a onAuthenticationSuccess");
-System.out.println("DEBUG: Roles del usuario autenticado:");
-
-for (GrantedAuthority authority : authorities) {
-    System.out.println(" - " + authority.getAuthority());
-}
+        // Si el usuario llega aquí, significa que no se encontró un rol específico para redirigirlo.
+        // Esto puede pasar si un usuario tiene un rol que no está listado en los 'if' anteriores.
+        // Puedes redirigir a una página de error genérica o a una página por defecto para roles no mapeados.
+        System.out.println("DEBUG: No se encontró una redirección específica para el rol del usuario. Redirigiendo a /error o a una página por defecto.");
+        response.sendRedirect("/error"); // Puedes cambiar esto a una página más amigable si tienes una
     }
-    
-    
 }

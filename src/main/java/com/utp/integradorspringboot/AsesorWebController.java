@@ -17,11 +17,4 @@ public class AsesorWebController {
     public String ReservasPage() {
         return "asesor_reservas_del_dia";
     }
-    
-    @GetMapping("/conductores")
-    public String ConductoresPage() {
-        return "conductores";
-    }
-
-    // Aquí puedes seguir agregando más vistas del rol asesor
 }

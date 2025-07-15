@@ -23,5 +23,4 @@ public class GerenteWebController {
         return "gerente_usuarios";
     }
   
-    // Aquí puedes seguir agregando más vistas del rol gerente
 }

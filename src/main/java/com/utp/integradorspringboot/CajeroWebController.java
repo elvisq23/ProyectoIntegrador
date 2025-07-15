@@ -18,5 +18,4 @@ public class CajeroWebController {
         return "cajero_pagos_historial";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol cajero
 }

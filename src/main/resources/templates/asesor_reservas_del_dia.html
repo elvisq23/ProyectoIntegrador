@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="_layout_asesor">
+      layout:decorate="~{_layout}"
+      th:with="pageTitle='UTP Integrador - Asesor Reservas'">
+
     <head>
-        <title>UTP Integrador - asesor</title>
-            <style>
-        .main-content {
-            margin-right: 240px;
-            padding: 80px 2rem 2rem 2rem;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .search-input {
-            max-width: 300px;
-        }
-    </style>
-        </head>
-<body>
+        <title>UTP Integrador - Asesor Reservas</title>
+        <style layout:fragment="css-specific">
+            .main-content {
+                margin-right: 240px;
+                padding: 80px 2rem 2rem 2rem;
+            }
+            h1 {
+                font-size: 24px;
+                font-weight: bold;
+                margin: 0;
+            }
+            .search-input {
+                max-width: 300px;
+            }
+        </style>
+    </head>
 
-    <div layout:fragment="content" id="colaboradoresApp" class="container mt-4">
-        <h1>aca va las reservas del dia del rol del asesor</h1>
-
-       
-
-        
-
-
-
-        </div>
-   
-
-</body>
+    <body>
+        <main layout:fragment="content">
+            <div id="colaboradoresApp" class="container mt-4">
+                <h1>aca va las reservas del dia del rol del asesor</h1>
+            </div>
+        </main>
+    </body>
 </html>

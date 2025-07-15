@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html layout:decorate="_layout_mecanico">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}" th:with="pageTitle='MetalCars - Diagnóstico de Vehículos'">
 <head>
     <title>MetalCars - Diagnóstico de Vehículos</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+    <style layout:fragment="css-specific">
         .main-content {
             margin-right: 240px;
             padding: 80px 2rem 2rem 2rem;
@@ -33,14 +32,13 @@
 <body>
 <div layout:fragment="content" id="appDiagnostico">
     <div class="main-content">
-        
+
       <div class="d-flex justify-content-between align-items-center mb-3">
           <h1 class="mb-0">Vehículos en Diagnóstico:</h1>
         <input type="text" class="form-control w-50 me-3" v-model="filtro" placeholder="Buscar por conductor o placa...">
-            
+
         </div>
 
-       
 
         <table class="table table-bordered">
             <thead>
@@ -71,7 +69,6 @@
         </table>
     </div>
 
-    <!-- Modal Diagnóstico -->
     <div class="modal fade" id="modalDiagnostico" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -148,4 +145,3 @@
 </script>
 </body>
 </html>
-

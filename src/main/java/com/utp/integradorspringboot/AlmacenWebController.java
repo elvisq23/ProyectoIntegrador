@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/almacen") // prefijo común si deseas agrupar
+@RequestMapping("/almacen") 
 public class AlmacenWebController {
 
     @GetMapping("/almacen_entrada_repuestos")
@@ -18,5 +18,4 @@ public class AlmacenWebController {
         return "almacen_stock";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol almacen
 }

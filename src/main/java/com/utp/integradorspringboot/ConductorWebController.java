@@ -18,5 +18,4 @@ public class ConductorWebController {
         return "conductor_reserva";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol conductor
 }

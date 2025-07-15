@@ -1,8 +1,8 @@
 package com.utp.integradorspringboot.services;
 
-import com.utp.integradorspringboot.models.Rol; // Importar Rol
+import com.utp.integradorspringboot.models.Rol;
 import com.utp.integradorspringboot.models.Usuario;
-import com.utp.integradorspringboot.repositories.RolRepository; // Importar RolRepository
+import com.utp.integradorspringboot.repositories.RolRepository;
 import com.utp.integradorspringboot.repositories.UsuarioRepository;
 import com.utp.integradorspringboot.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
