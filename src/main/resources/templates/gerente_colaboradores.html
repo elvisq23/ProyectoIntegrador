@@ -1,32 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="_layout_dueno">
-    <head>
-        <title>UTP Integrador - Colaboradores</title>
-            <style>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="_layout_gerente">
+
+<head>
+    <title>UTP Integrador - Colaboradores</title>
+    <style>
         .main-content {
             margin-right: 240px;
             padding: 80px 2rem 2rem 2rem;
         }
+
         h1 {
             font-size: 24px;
             font-weight: bold;
             margin: 0;
         }
-        
+
         .search-input {
             max-width: 300px;
         }
     </style>
-        </head>
+</head>
+
 <body>
 
     <div layout:fragment="content" id="colaboradoresApp" class="container mt-4">
         <h1>Gestión de Colaboradores</h1>
 
         <div class="mb-3">
-            <input type="text" class="form-control" placeholder="Buscar por Nombres, DNI o Correo..." v-model="searchQuery" @input="debouncedSearch" autocomplete="new-password">
+            <input type="text" class="form-control" placeholder="Buscar por Nombres, DNI o Correo..."
+                v-model="searchQuery" @input="debouncedSearch" autocomplete="new-password">
         </div>
 
         <p class="text-end">
@@ -56,7 +59,9 @@
                     <td>{{colaborador.dni}}</td>
                     <td>{{colaborador.telefono}}</td>
                     <td>{{colaborador.correo}}</td>
-                    <td>{{colaborador.sedeNombre}}</td> <td>{{colaborador.rolNombre}}</td>   <td>{{colaborador.estado ? 'Activo' : 'Inactivo'}}</td>
+                    <td>{{colaborador.sedeNombre}}</td>
+                    <td>{{colaborador.rolNombre}}</td>
+                    <td>{{colaborador.estado ? 'Activo' : 'Inactivo'}}</td>
                     <td class="text-end">
                         <button class="btn btn-info me-2" @click="editarColaborador(colaborador.id)" title="Editar">
                             <i class="bi bi-pencil-square"></i> </button>
@@ -65,7 +70,8 @@
                     </td>
                 </tr>
                 <tr v-if="colaboradores.length === 0">
-                    <td colspan="10" class="text-center">No hay colaboradores registrados o no se encontraron resultados.</td>
+                    <td colspan="10" class="text-center">No hay colaboradores registrados o no se encontraron
+                        resultados.</td>
                 </tr>
             </tbody>
         </table>
@@ -74,7 +80,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle" v-if="colaborador.id == null || colaborador.id == 0">Nuevo Colaborador</h5>
+                        <h5 class="modal-title" id="modalTitle" v-if="colaborador.id == null || colaborador.id == 0">
+                            Nuevo Colaborador</h5>
                         <h5 class="modal-title" id="modalTitle" v-else>Editar Colaborador</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -106,19 +113,20 @@
                         <div class="mb-3 row">
                             <label for="correo" class="col-sm-4 col-form-label">Correo</label>
                             <div class="col-sm-8">
-                                <input type="email" class="form-control" id="correo" v-model="colaborador.correo" required />
+                                <input type="email" class="form-control" id="correo" v-model="colaborador.correo"
+                                    required />
                             </div>
                         </div>
-                        
-                        
+
+
                         <div class="mb-3 row">
                             <label for="selectSede" class="col-sm-4 col-form-label">Sede</label>
                             <div class="col-sm-8">
                                 <select class="form-select" id="selectSede" v-model="colaborador.sedeId" required>
-    <option value="">Seleccione una sede</option>
-    <option v-for="sede in sedes" :key="sede.id" :value="sede.id">
-        {{ sede.nombreSede }}  </option>
-</select>
+                                    <option value="">Seleccione una sede</option>
+                                    <option v-for="sede in sedes" :key="sede.id" :value="sede.id">
+                                        {{ sede.nombreSede }} </option>
+                                </select>
                             </div>
                         </div>
 
@@ -132,12 +140,15 @@
                                 </select>
                             </div>
                         </div>
-                        
-                        
+
+
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" v-if="colaborador.id == null || colaborador.id == 0" @click="guardarActualizarColaborador">Guardar</button>
-                        <button type="button" class="btn btn-primary" v-else @click="guardarActualizarColaborador">Actualizar</button>
+                        <button type="button" class="btn btn-primary"
+                            v-if="colaborador.id == null || colaborador.id == 0"
+                            @click="guardarActualizarColaborador">Guardar</button>
+                        <button type="button" class="btn btn-primary" v-else
+                            @click="guardarActualizarColaborador">Actualizar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
@@ -165,12 +176,12 @@
 
     <script layout:fragment="script">
         const API_COLABORADORES_URL = '/api/colaboradores';
-        const API_SEDES_URL = '/api/sedes'; 
-        const API_ROLES_URL = '/api/roles';   
+        const API_SEDES_URL = '/api/sedes';
+        const API_ROLES_URL = '/api/roles';
 
         function debounce(fn, delay) {
             let timeoutId;
-            return function(...args) {
+            return function (...args) {
                 clearTimeout(timeoutId);
                 timeoutId = setTimeout(() => {
                     fn.apply(this, args);
@@ -191,11 +202,11 @@
                     correo: '',
                     contrasenia: '',
                     estado: true,
-                    sedeId: '', 
-                    rolId: ''   
+                    sedeId: '',
+                    rolId: ''
                 },
-                sedes: [], 
-                roles: [], 
+                sedes: [],
+                roles: [],
                 searchQuery: '',
                 idToDelete: null
             },
@@ -213,10 +224,10 @@
                         alert('Error al cargar los colaboradores. Revisa la consola para más detalles.');
                     });
                 },
-                
+
                 listarSedes: function () {
                     this.$http.get(API_SEDES_URL).then(response => {
-                        this.sedes = response.data || []; 
+                        this.sedes = response.data || [];
                         console.log("Sedes cargadas para select:", this.sedes);
                     }).catch(error => {
                         console.error("Error al obtener las sedes:", error.response ? error.response.data : error.message);
@@ -226,7 +237,7 @@
                 },
                 listarRoles: function () {
                     this.$http.get(API_ROLES_URL).then(response => {
-                        this.roles = response.data || []; 
+                        this.roles = response.data || [];
                         console.log("Roles cargados para select:", this.roles);
                     }).catch(error => {
                         console.error("Error al obtener los roles:", error.response ? error.response.data : error.message);
@@ -243,12 +254,12 @@
                         dni: '',
                         telefono: '',
                         correo: '',
-                        contrasenia: '', 
+                        contrasenia: '',
                         estado: true,
-                        sedeId: '', 
-                        rolId: ''   
+                        sedeId: '',
+                        rolId: ''
                     };
-                    $("#mdlColaborador").modal("show"); 
+                    $("#mdlColaborador").modal("show");
                 },
 
                 editarColaborador: function (id) {
@@ -263,9 +274,9 @@
                             correo: dataColaborador.correo,
                             contrasenia: '',
                             estado: dataColaborador.estado,
-                           
-                            sedeId: dataColaborador.sede ? dataColaborador.sede.id : '', 
-                            rolId: dataColaborador.rol ? dataColaborador.rol.id : ''     
+
+                            sedeId: dataColaborador.sede ? dataColaborador.sede.id : '',
+                            rolId: dataColaborador.rol ? dataColaborador.rol.id : ''
                         };
                         $("#mdlColaborador").modal("show");
                     }).catch(error => {
@@ -276,36 +287,36 @@
 
                 guardarActualizarColaborador: function () {
                     let promise;
-    const colaboradorParaEnviar = { ...this.colaborador }; 
+                    const colaboradorParaEnviar = { ...this.colaborador };
 
-    console.log("FRONTEND DEBUG: Estado inicial de colaborador.id:", this.colaborador.id);
-    console.log("FRONTEND DEBUG: Estado inicial de colaborador.dni:", this.colaborador.dni);
-    console.log("FRONTEND DEBUG: Estado inicial de colaborador.contrasenia (antes de lógica):", this.colaborador.contrasenia);
+                    console.log("FRONTEND DEBUG: Estado inicial de colaborador.id:", this.colaborador.id);
+                    console.log("FRONTEND DEBUG: Estado inicial de colaborador.dni:", this.colaborador.dni);
+                    console.log("FRONTEND DEBUG: Estado inicial de colaborador.contrasenia (antes de lógica):", this.colaborador.contrasenia);
 
-    // LÓGICA CLAVE: Asignar DNI como contraseña si es un nuevo registro
-    if (colaboradorParaEnviar.id == null || colaboradorParaEnviar.id == 0) {
-        console.log("FRONTEND DEBUG: Es un nuevo registro. Asignando DNI a contrasenia.");
-        colaboradorParaEnviar.contrasenia = colaboradorParaEnviar.dni;
-    } else {
-        console.log("FRONTEND DEBUG: Es una edición. Eliminando contrasenia del DTO.");
-        
-        delete colaboradorParaEnviar.contrasenia;
-    }
+                    // LÓGICA CLAVE: Asignar DNI como contraseña si es un nuevo registro
+                    if (colaboradorParaEnviar.id == null || colaboradorParaEnviar.id == 0) {
+                        console.log("FRONTEND DEBUG: Es un nuevo registro. Asignando DNI a contrasenia.");
+                        colaboradorParaEnviar.contrasenia = colaboradorParaEnviar.dni;
+                    } else {
+                        console.log("FRONTEND DEBUG: Es una edición. Eliminando contrasenia del DTO.");
 
-    console.log("FRONTEND DEBUG: Colaborador DTO listo para enviar (contrasenia):", colaboradorParaEnviar.contrasenia);
-    console.log("FRONTEND DEBUG: Colaborador DTO completo listo para enviar:", JSON.stringify(colaboradorParaEnviar, null, 2));
+                        delete colaboradorParaEnviar.contrasenia;
+                    }
+
+                    console.log("FRONTEND DEBUG: Colaborador DTO listo para enviar (contrasenia):", colaboradorParaEnviar.contrasenia);
+                    console.log("FRONTEND DEBUG: Colaborador DTO completo listo para enviar:", JSON.stringify(colaboradorParaEnviar, null, 2));
 
 
-    if (colaboradorParaEnviar.id == null || colaboradorParaEnviar.id == 0) {
-        promise = this.$http.post(API_COLABORADORES_URL, colaboradorParaEnviar);
-    } else {
-        promise = this.$http.put(API_COLABORADORES_URL + '/' + colaboradorParaEnviar.id, colaboradorParaEnviar);
-    }
+                    if (colaboradorParaEnviar.id == null || colaboradorParaEnviar.id == 0) {
+                        promise = this.$http.post(API_COLABORADORES_URL, colaboradorParaEnviar);
+                    } else {
+                        promise = this.$http.put(API_COLABORADORES_URL + '/' + colaboradorParaEnviar.id, colaboradorParaEnviar);
+                    }
 
                     promise.then(response => {
                         alert('Colaborador guardado con éxito!');
                         $("#mdlColaborador").modal("hide");
-                        this.listarColaboradores(); 
+                        this.listarColaboradores();
                     }).catch(error => {
                         console.error("Error al guardar/actualizar colaborador:", error.response ? error.response.data : error.message);
                         let errorMessage = 'Error al guardar/actualizar colaborador.';
@@ -335,17 +346,18 @@
                         alert('Error al desactivar el colaborador. Revisa la consola.');
                     });
                 },
-                
-                debouncedSearch: debounce(function() {
+
+                debouncedSearch: debounce(function () {
                     this.listarColaboradores();
                 }, 500)
             },
             mounted: function () {
                 this.listarColaboradores();
-                this.listarSedes();  
-                this.listarRoles();    
+                this.listarSedes();
+                this.listarRoles();
             }
         });
     </script>
 </body>
+
 </html>

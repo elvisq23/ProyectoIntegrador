@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html layout:decorate="_layout_mecanico">
+
 <head>
     <title>MetalCars - Órdenes de Servicio</title>
     <style>
@@ -7,108 +8,118 @@
             margin-right: 240px;
             padding: 80px 2rem 2rem 2rem;
         }
+
         h1 {
             font-size: 24px;
             font-weight: bold;
             margin: 0;
         }
+
         .table th {
             font-size: 14px;
         }
+
         .table td {
             vertical-align: middle;
         }
+
         .btn-sm {
             padding: 4px 10px;
             font-size: 13px;
         }
+
         .search-input {
             max-width: 300px;
         }
     </style>
 </head>
-<body>
-<div layout:fragment="content" id="app">
-    <div class="main-content">
-       
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1>Vehículos Asignados:</h1>
-            <input type="text" class="form-control search-input" v-model="filtro" placeholder="Buscar por cliente o placa...">
-            
-        </div>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Cliente</th>
-                    <th>Vehículo</th>
-                    <th>Placa</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in entidadesFiltradas" :key="item.id">
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.vehiculo?.nombreConductor || 'N/D' }}</td>
-                    <td>{{ item.vehiculo?.marca }} {{ item.vehiculo?.modelo }}</td>
-                    <td>{{ item.vehiculo?.placa }}</td>
-                    <td>
-                        <span :class="{
+<body>
+    <div layout:fragment="content" id="app">
+        <div class="main-content">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1>Vehículos Asignados:</h1>
+                <input type="text" class="form-control search-input" v-model="filtro"
+                    placeholder="Buscar por cliente o placa...">
+
+            </div>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Vehículo</th>
+                        <th>Placa</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in entidadesFiltradas" :key="item.id">
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.vehiculo?.nombreConductor || 'N/D' }}</td>
+                        <td>{{ item.vehiculo?.marca }} {{ item.vehiculo?.modelo }}</td>
+                        <td>{{ item.vehiculo?.placa }}</td>
+                        <td>
+                            <span :class="{
                             'badge bg-secondary': item.estado === 'PENDIENTE',
                             'badge bg-warning text-dark': item.estado === 'EN_PROCESO',
                             'badge bg-success': item.estado === 'FINALIZADO'
                         }">
-                            {{ item.estado }}
-                        </span>
-                    </td>
-                    <td>
-                        <button v-if="item.estado === 'PENDIENTE'" class="btn btn-primary btn-sm" @click="cambiarEstado(item.id, 'EN_PROCESO')">Iniciar</button>
-                        <button v-else-if="item.estado === 'EN_PROCESO'" class="btn btn-success btn-sm" @click="cambiarEstado(item.id, 'FINALIZADO')">Finalizar</button>
-                        <span v-else class="text-muted">Completado</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                                {{ item.estado }}
+                            </span>
+                        </td>
+                        <td>
+                            <button v-if="item.estado === 'PENDIENTE'" class="btn btn-primary btn-sm"
+                                @click="cambiarEstado(item.id, 'EN_PROCESO')">Iniciar</button>
+                            <button v-else-if="item.estado === 'EN_PROCESO'" class="btn btn-success btn-sm"
+                                @click="cambiarEstado(item.id, 'FINALIZADO')">Finalizar</button>
+                            <span v-else class="text-muted">Completado</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<script layout:fragment="script">
-    new Vue({
-        el: "#app",
-        data: {
-            entidades: [],
-            filtro: ''
-        },
-        computed: {
-            entidadesFiltradas() {
-                const texto = this.filtro.toLowerCase();
-                return this.entidades.filter(item => {
-                    const conductor = item.vehiculo?.nombreConductor?.toLowerCase() || '';
-                    const placa = item.vehiculo?.placa?.toLowerCase() || '';
-                    return conductor.includes(texto) || placa.includes(texto);
-                });
-            }
-        },
-        methods: {
-            listar() {
-                this.$http.get('/api/ordenes').then(res => {
-                    this.entidades = res.data;
-                });
+    <script layout:fragment="script">
+        new Vue({
+            el: "#app",
+            data: {
+                entidades: [],
+                filtro: ''
             },
-            cambiarEstado(id, nuevoEstado) {
-                this.$http.put('/api/ordenes/' + id + '/estado', {
-                    estado: nuevoEstado
-                }).then(() => {
-                    this.listar();
-                });
+            computed: {
+                entidadesFiltradas() {
+                    const texto = this.filtro.toLowerCase();
+                    return this.entidades.filter(item => {
+                        const conductor = item.vehiculo?.nombreConductor?.toLowerCase() || '';
+                        const placa = item.vehiculo?.placa?.toLowerCase() || '';
+                        return conductor.includes(texto) || placa.includes(texto);
+                    });
+                }
+            },
+            methods: {
+                listar() {
+                    this.$http.get('/api/ordenes').then(res => {
+                        this.entidades = res.data;
+                    });
+                },
+                cambiarEstado(id, nuevoEstado) {
+                    this.$http.put('/api/ordenes/' + id + '/estado', {
+                        estado: nuevoEstado
+                    }).then(() => {
+                        this.listar();
+                    });
+                }
+            },
+            mounted() {
+                this.listar();
             }
-        },
-        mounted() {
-            this.listar();
-        }
-    });
-</script>
+        });
+    </script>
 </body>
+
 </html>

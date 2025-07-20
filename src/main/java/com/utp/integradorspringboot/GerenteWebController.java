@@ -8,20 +8,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/gerente") // prefijo común si deseas agrupar
 public class GerenteWebController {
 
-    @GetMapping("/gerente_asignacion")
+    @GetMapping("/asignacion")
     public String AsignacionesDelGerentePage() {
         return "gerente_asignacion";
     }
     
-    @GetMapping("/gerente_estado")
+    @GetMapping("/estado")
     public String EstadosGerentePage() {
         return "gerente_estado";
     }
-    
-    @GetMapping("/gerente_usuarios")
-    public String GestionDeUsuariosPage() {
-        return "gerente_usuarios";
+
+    @GetMapping("/colaboradores")
+    public String colaboradoresPage() {
+        return "gerente_colaboradores";
     }
-  
-    // Aquí puedes seguir agregando más vistas del rol gerente
+
+    @GetMapping("/conductores")
+    public String GestionDeConductoresPage() {
+        return "gerente_conductores";
+    }
+
+    @GetMapping("/sedes")
+    public String Sedespage() {
+        return "gerente_sedes";
+    }
 }

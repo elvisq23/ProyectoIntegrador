@@ -1,6 +1,7 @@
 package com.utp.integradorspringboot.api;
 
 import com.utp.integradorspringboot.dto.ConductorRequest;
+import com.utp.integradorspringboot.dto.ConductorResponseDTO;
 import com.utp.integradorspringboot.models.Usuario;
 import com.utp.integradorspringboot.services.ConductorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +21,24 @@ public class ConductorRestController {
     @Autowired
     private ConductorService conductorService;
 
-     @GetMapping
-    public ResponseEntity<List<Usuario>> getAllConductores(@RequestParam(required = false) String search) {
+    // --- MODIFICADO: Ahora devuelve List<ConductorResponseDTO> ---
+    @GetMapping
+    public ResponseEntity<List<ConductorResponseDTO>> getAllConductores(@RequestParam(required = false) String search) {
         List<Usuario> conductores = conductorService.getAllConductores(search);
-        conductores.forEach(u -> u.setContrasenia(null));
-        return ResponseEntity.ok(conductores);
+
+        List<ConductorResponseDTO> conductorDTOs = conductores.stream()
+                .map(ConductorResponseDTO::new) // Convierte cada Usuario a ConductorResponseDTO
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(conductorDTOs);
     }
 
+    // --- MODIFICADO: Ahora devuelve ConductorResponseDTO para el GET por ID ---
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getConductorById(@PathVariable Long id) {
+    public ResponseEntity<ConductorResponseDTO> getConductorById(@PathVariable Long id) {
         return conductorService.getConductorById(id)
-                .map(conductor -> {
-                    conductor.setContrasenia(null); 
-                    return ResponseEntity.ok(conductor);
-                })
+                .map(usuario -> new ConductorResponseDTO(usuario)) // Convierte Usuario a DTO
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -44,7 +49,9 @@ public class ConductorRestController {
         }
         try {
             Usuario newConductor = conductorService.saveConductor(request);
-            newConductor.setContrasenia(null); 
+            // Si también quieres devolver un DTO en la creación, hazlo aquí:
+            // return new ResponseEntity<>(new ConductorResponseDTO(newConductor), HttpStatus.CREATED);
+            newConductor.setContrasenia(null); // Esto es redundante si devuelves un DTO, pero no daña.
             return new ResponseEntity<>(newConductor, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -60,7 +67,9 @@ public class ConductorRestController {
         }
         try {
             Usuario updatedConductor = conductorService.updateConductor(id, request);
-            updatedConductor.setContrasenia(null); 
+            // Si también quieres devolver un DTO en la actualización:
+            // return ResponseEntity.ok(new ConductorResponseDTO(updatedConductor));
+            updatedConductor.setContrasenia(null); // Esto es redundante si devuelves un DTO, pero no daña.
             return ResponseEntity.ok(updatedConductor);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -72,10 +81,10 @@ public class ConductorRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateConductor(@PathVariable Long id) {
         try {
-            conductorService.deactivateConductor(id); 
-            return ResponseEntity.noContent().build(); 
+            conductorService.deactivateConductor(id);
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

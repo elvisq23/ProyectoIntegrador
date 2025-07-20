@@ -4,16 +4,15 @@ import com.utp.integradorspringboot.dto.ColaboradorRequestDTO;
 import com.utp.integradorspringboot.models.Rol;
 import com.utp.integradorspringboot.models.Sede;
 import com.utp.integradorspringboot.models.Usuario;
-import com.utp.integradorspringboot.repositories.UsuarioRepository;
 import com.utp.integradorspringboot.repositories.RolRepository;
 import com.utp.integradorspringboot.repositories.SedeRepository;
+import com.utp.integradorspringboot.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,7 @@ public class ColaboradorService {
     @Autowired
     private SedeRepository sedeRepository;
     @Autowired
-    private PasswordEncoder passwordEncoder; 
+    private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     private List<String> getValidColaboratorRoleNames() {
@@ -52,14 +51,14 @@ public class ColaboradorService {
         } else {
             colaboradores = usuarioRepository.findByRoles_NombreInAndEstadoTrue(rolesFiltrados);
         }
-   
+
         return colaboradores;
     }
 
     @Transactional(readOnly = true)
     public Optional<Usuario> getColaboradorById(Long id) {
         List<String> rolesFiltrados = getValidColaboratorRoleNames();
-   
+
         return usuarioRepository.findByIdAndRoles_NombreIn(id, rolesFiltrados);
     }
 
@@ -74,7 +73,7 @@ public class ColaboradorService {
         if (usuarioRepository.findByDni(request.getDni()).isPresent()) {
             throw new IllegalArgumentException("Ya existe un usuario con este DNI.");
         }
-      
+
         if (request.getContrasenia() == null || request.getContrasenia().isEmpty()) {
             throw new IllegalArgumentException("La contraseña es obligatoria para un nuevo colaborador.");
         }
@@ -86,18 +85,18 @@ public class ColaboradorService {
         nuevoColaborador.setTelefono(request.getTelefono());
         nuevoColaborador.setRuc(request.getRuc());
         nuevoColaborador.setCorreo(request.getCorreo());
-        
-        nuevoColaborador.setContrasenia(request.getContrasenia()); 
+
+        nuevoColaborador.setContrasenia(request.getContrasenia());
 
         nuevoColaborador.setFechaRegistro(LocalDateTime.now());
         nuevoColaborador.setEstado(request.getEstado() != null ? request.getEstado() : true);
 
         Sede sede = sedeRepository.findById(request.getSedeId())
-                                   .orElseThrow(() -> new IllegalArgumentException("Sede no encontrada con ID: " + request.getSedeId()));
+                .orElseThrow(() -> new IllegalArgumentException("Sede no encontrada con ID: " + request.getSedeId()));
         nuevoColaborador.setSede(sede);
 
         Rol rol = rolRepository.findById(request.getRolId())
-                               .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con ID: " + request.getRolId()));
+                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con ID: " + request.getRolId()));
 
         if (rol.getNombre().equalsIgnoreCase("CONDUCTOR")) {
             throw new IllegalArgumentException("El rol 'CONDUCTOR' no es un rol válido para colaboradores.");
@@ -109,7 +108,7 @@ public class ColaboradorService {
 
         Usuario savedColaborador = usuarioRepository.save(nuevoColaborador);
 
-    
+
         return usuarioRepository.findByIdWithDetails(savedColaborador.getId()) // Asumo que tienes este método en tu repo
                 .orElse(savedColaborador); // Fallback si no se encuentra (no debería ocurrir)
     }
@@ -140,20 +139,20 @@ public class ColaboradorService {
         existingColaborador.setRuc(request.getRuc());
         existingColaborador.setCorreo(request.getCorreo());
 
-       
+
         if (request.getContrasenia() != null && !request.getContrasenia().isEmpty()) {
-            existingColaborador.setContrasenia(request.getContrasenia()); 
+            existingColaborador.setContrasenia(request.getContrasenia());
         }
-       
+
 
         existingColaborador.setEstado(request.getEstado() != null ? request.getEstado() : existingColaborador.getEstado());
 
         Sede sede = sedeRepository.findById(request.getSedeId())
-                                   .orElseThrow(() -> new IllegalArgumentException("Sede no encontrada con ID: " + request.getSedeId()));
+                .orElseThrow(() -> new IllegalArgumentException("Sede no encontrada con ID: " + request.getSedeId()));
         existingColaborador.setSede(sede);
 
         Rol rol = rolRepository.findById(request.getRolId())
-                               .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con ID: " + request.getRolId()));
+                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con ID: " + request.getRolId()));
 
         if (rol.getNombre().equalsIgnoreCase("CONDUCTOR")) {
             throw new IllegalArgumentException("El rol 'CONDUCTOR' no es un rol válido para colaboradores.");
@@ -163,7 +162,7 @@ public class ColaboradorService {
         existingColaborador.addRol(rol);
 
         Usuario updatedColaborador = usuarioRepository.save(existingColaborador);
-        
+
         return usuarioRepository.findByIdWithDetails(updatedColaborador.getId())
                 .orElse(updatedColaborador);
     }

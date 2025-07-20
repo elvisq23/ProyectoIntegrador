@@ -5,18 +5,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/conductor") // prefijo común si deseas agrupar
+@RequestMapping("/conductor")
 public class ConductorWebController {
 
-    @GetMapping("/conductor_vehiculo")
+    @GetMapping("/vehiculo")
     public String VehiculosDelConductorPage() {
         return "conductor_vehiculo";
     }
 
-    @GetMapping("/conductor_reserva")
+    @GetMapping("/reserva")
     public String ReservasDelConductorPage() {
         return "conductor_reserva";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol conductor
+    @GetMapping("/estado_reparaciones")
+    public String EstadoDeReparacionesDelConductorPage() {
+        return "conductor_estado_reparaciones";
+    }
+
 }

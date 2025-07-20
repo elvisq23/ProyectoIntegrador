@@ -41,4 +41,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByIdWithDetails(@Param("id") Long id);
     
     Optional<Usuario> findByCorreoIgnoreCase(String correo);
+
+    @Query("SELECT u FROM Usuario u WHERE u.estado = true AND LOWER(CONCAT(u.nombres, ' ', u.apellidos, ' ', u.dni, ' ', u.correo)) LIKE :search AND 'CONDUCTOR' IN (SELECT r.nombre FROM u.roles r)")
+    List<Usuario> findByRoles_NombreIgnoreCaseAndEstadoTrueAndBusqueda(@Param("search") String search);
+
+    List<Usuario> findByRoles_NombreIgnoreCaseAndEstadoTrue(String rolNombre);
+    Optional<Usuario> findByIdAndRoles_NombreIgnoreCase(Long id, String rolNombre);
 }

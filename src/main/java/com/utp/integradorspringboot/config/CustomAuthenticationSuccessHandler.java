@@ -29,39 +29,41 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             String role = authority.getAuthority();
 
             if (role.equals("ROLE_DUEÑO")) {
-                response.sendRedirect("/dueno/dueno_dashboard");
-                return;
-            } else if (role.equals("ROLE_MECANICO")) {
-                response.sendRedirect("/mecanico/mecanico_asignaciones");
-                return;
-            } else if (role.equals("ROLE_ASESOR")) {
-                response.sendRedirect("/asesor/asesor_registrar_llegada");
-                return;
-            } else if (role.equals("ROLE_CONDUCTOR")) {
-                response.sendRedirect("/conductor/conductor_vehiculo");
+                response.sendRedirect("/dueno/dashboard");
                 return;
             } else if (role.equals("ROLE_GERENTE")) {
-                response.sendRedirect("/gerente/gerente_usuarios");
+                response.sendRedirect("/gerente/colaboradores");
+                return;
+            } else if (role.equals("ROLE_MECANICO")) {
+                response.sendRedirect("/mecanico/asignaciones");
+                return;
+            } else if (role.equals("ROLE_ENCARGADO")) {
+                response.sendRedirect("/encargado/registrar_llegada");
+                return;
+            } else if (role.equals("ROLE_RECEPCION")) {
+                response.sendRedirect("/recepcion/registrar_llegada");
+                return;
+            } else if (role.equals("ROLE_CONDUCTOR")) {
+                response.sendRedirect("/conductor/vehiculo");
                 return;
             } else if (role.equals("ROLE_CAJERO")) {
-                response.sendRedirect("/cajero/cajero_emitir_pagos");
+                response.sendRedirect("/cajero/emitir_pagos");
                 return;
             } else if (role.equals("ROLE_ALMACEN")) {
-                response.sendRedirect("/almacen/almacen_entrada_repuestos");
+                response.sendRedirect("/almacen/entrada_repuestos");
                 return;
             }
         }
 
         // Redirección por defecto si el rol no coincide
         response.sendRedirect("/PaginaRolNoCoincide");
-        
-        System.out.println("DEBUG: Entrando a onAuthenticationSuccess");
-System.out.println("DEBUG: Roles del usuario autenticado:");
 
-for (GrantedAuthority authority : authorities) {
-    System.out.println(" - " + authority.getAuthority());
-}
+        System.out.println("DEBUG: Entrando a onAuthenticationSuccess");
+        System.out.println("DEBUG: Roles del usuario autenticado:");
+
+        for (GrantedAuthority authority : authorities) {
+            System.out.println(" - " + authority.getAuthority());
+        }
     }
-    
-    
+
 }

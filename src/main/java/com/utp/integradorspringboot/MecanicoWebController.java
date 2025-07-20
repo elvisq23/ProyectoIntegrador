@@ -5,18 +5,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/mecanico") // prefijo común si deseas agrupar
+@RequestMapping("/mecanico")
 public class MecanicoWebController {
 
-    @GetMapping("/mecanico_diagnostico")
+    @GetMapping("/diagnostico")
     public String diagnosticoPage() {
         return "mecanico_diagnostico";
     }
 
-    @GetMapping("/mecanico_asignaciones")
+    @GetMapping("/asignaciones")
     public String asignacionesPage() {
         return "mecanico_asignaciones";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol mecánico
 }

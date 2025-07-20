@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout_gerente">
+
+<head>
+    <title>UTP Integrador - Conductores</title>
+    <style>
+        .main-content {
+            margin-right: 240px;
+            padding: 80px 2rem 2rem 2rem;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .search-input {
+            max-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div id="conductoresApp" class="container mt-4">
+        <h1>Gestión de Conductores</h1>
+
+        <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Buscar por Nombres, DNI o Correo..." v-model="searchQuery" @input="debouncedSearch">
+        </div>
+
+        <p class="text-end">
+            <button class="btn btn-primary" @click="nuevoConductor">Nuevo Conductor</button>
+        </p>
+
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>DNI</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="conductor in conductores" :key="conductor.id">
+                <td>{{conductor.id}}</td>
+                <td>{{conductor.nombres}}</td>
+                <td>{{conductor.apellidos}}</td>
+                <td>{{conductor.dni}}</td>
+                <td>{{conductor.telefono}}</td>
+                <td>{{conductor.correo}}</td>
+                <td class="text-end">
+                    <button class="btn btn-info me-2" @click="editarConductor(conductor.id)" title="Editar">
+                        <i class="bi bi-pencil-square"></i> </button>
+                    <button class="btn btn-danger" @click="eliminarConductor(conductor.id)" title="Eliminar">
+                        <i class="bi bi-trash"></i> </button>
+                </td>
+            </tr>
+            <tr v-if="conductores.length === 0">
+                <td colspan="7" class="text-center">No hay conductores registrados o no se encontraron resultados.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="modal fade" tabindex="-1" id="mdlConductor" aria-labelledby="modalTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle" v-if="conductor.id == null || conductor.id == 0">Nuevo Conductor</h5>
+                        <h5 class="modal-title" id="modalTitle" v-else>Editar Conductor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 row">
+                            <label for="nombres" class="col-sm-4 col-form-label">Nombres</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="nombres" v-model="conductor.nombres" required />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="apellidos" class="col-sm-4 col-form-label">Apellidos</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="apellidos" v-model="conductor.apellidos" required />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="dni" class="col-sm-4 col-form-label">DNI</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="dni" v-model="conductor.dni" required />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="telefono" class="col-sm-4 col-form-label">Teléfono</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telefono" v-model="conductor.telefono" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="correo" class="col-sm-4 col-form-label">Correo</label>
+                            <div class="col-sm-8">
+                                <input type="email" class="form-control" id="correo" v-model="conductor.correo" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" v-if="conductor.id == null || conductor.id == 0" @click="guardarActualizarConductor">Guardar</button>
+                        <button type="button" class="btn btn-primary" v-else @click="guardarActualizarConductor">Actualizar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" tabindex="-1" id="mdlEliminar" aria-labelledby="deleteModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalTitle">Eliminar Conductor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro que quieres eliminar este conductor? Esta acción desactivará su cuenta.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" @click="confirmarDesactivacion">Eliminar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script layout:fragment="script">
+    const API_CONDUCTORES_URL = '/api/conductores';
+
+    function debounce(fn, delay) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                fn.apply(this, args);
+            }, delay);
+        };
+    }
+
+    new Vue({
+        el: "#conductoresApp",
+        data: {
+            conductores: [],
+            conductor: {
+                id: null,
+                nombres: '',
+                apellidos: '',
+                dni: '',
+                telefono: '',
+                correo: '',
+                contrasenia: '',
+                estado: true // Mantener en data aunque no se use en el formulario o tabla
+            },
+            searchQuery: '',
+            idToDelete: null
+        },
+        methods: {
+            listarConductores: function () {
+                let url = API_CONDUCTORES_URL;
+                if (this.searchQuery) {
+                    url += '?search=' + encodeURIComponent(this.searchQuery);
+                }
+                this.$http.get(url).then(response => {
+                    this.conductores = response.data.filter(c => c.estado === true); // FILTRAR SOLO CONDUCTORES ACTIVOS
+                }).catch(error => {
+                    console.error("Error al obtener los conductores:", error);
+                    this.conductores = [];
+                    alert('Error al cargar los conductores. Revisa la consola para más detalles.');
+                });
+            },
+            nuevoConductor: function () {
+                this.conductor = {
+                    id: null,
+                    nombres: '',
+                    apellidos: '',
+                    dni: '',
+                    telefono: '',
+                    correo: '',
+                    contrasenia: '',
+                    estado: true
+                };
+                $("#mdlConductor").modal("show");
+            },
+            editarConductor: function (id) {
+                this.$http.get(API_CONDUCTORES_URL + '/' + id).then(response => {
+                    const dataConductor = response.data;
+                    this.conductor = {
+                        id: dataConductor.id,
+                        nombres: dataConductor.nombres,
+                        apellidos: dataConductor.apellidos,
+                        dni: dataConductor.dni,
+                        telefono: dataConductor.telefono,
+                        correo: dataConductor.correo,
+                        contrasenia: '',
+                        estado: dataConductor.estado
+                    };
+                    $("#mdlConductor").modal("show");
+                }).catch(error => {
+                    console.error("Error al obtener el conductor para editar:", error.response ? error.response.data : error.message);
+                    alert('Error al cargar los datos del conductor para editar. Revisa la consola.');
+                });
+            },
+            guardarActualizarConductor: function () {
+                let promise;
+                const conductorParaEnviar = { ...this.conductor };
+
+                // LÓGICA CLAVE: Copiar DNI a contrasenia SOLO SI ES UN NUEVO CONDUCTOR
+                if (conductorParaEnviar.id == null || conductorParaEnviar.id == 0) {
+                    conductorParaEnviar.contrasenia = conductorParaEnviar.dni; // <--- AÑADE ESTA LÍNEA
+                } else {
+                    // Si es una edición y la contraseña está vacía, no enviarla para no sobrescribir
+                    if (conductorParaEnviar.contrasenia === '') {
+                        delete conductorParaEnviar.contrasenia;
+                    }
+                }
+
+                if (conductorParaEnviar.id == null || conductorParaEnviar.id == 0) {
+                    promise = this.$http.post(API_CONDUCTORES_URL, conductorParaEnviar);
+                } else {
+                    promise = this.$http.put(API_CONDUCTORES_URL + '/' + conductorParaEnviar.id, conductorParaEnviar);
+                }
+
+                promise.then(response => {
+                    alert('Conductor guardado con éxito!');
+                    $("#mdlConductor").modal("hide");
+                    this.listarConductores();
+                }).catch(error => {
+                    console.error("Error al guardar/actualizar conductor:", error.response ? error.response.data : error.message);
+                    let errorMessage = 'Error al guardar/actualizar conductor.';
+                    if (error.response && error.response.data) {
+                        if (error.response.data.message) {
+                            errorMessage = error.response.data.message;
+                        } else if (error.response.data.errors) {
+                            errorMessage = error.response.data.errors.map(e => e.defaultMessage).join(', ');
+                        }
+                    }
+                    alert(errorMessage);
+                });
+            },
+            eliminarConductor: function (id) {
+                this.idToDelete = id;
+                $("#mdlEliminar").modal("show");
+            },
+            confirmarDesactivacion: function () {
+                this.$http.put(API_CONDUCTORES_URL + '/' + this.idToDelete + '/desactivar').then(response => {
+                    alert('Conductor eliminado (desactivado) con éxito!');
+                    $("#mdlEliminar").modal("hide");
+                    this.listarConductores();
+                    this.idToDelete = null;
+                }).catch(error => {
+                    console.error("Error al eliminar (desactivar) el conductor:", error.response ? error.response.data : error.message);
+                    alert('Error al eliminar (desactivar) el conductor. Revisa la consola.');
+                });
+            },
+            debouncedSearch: debounce(function() {
+                this.listarConductores();
+            }, 500)
+        },
+        mounted: function () {
+            this.listarConductores();
+        }
+    });
+</script>
+</body>
+</html>

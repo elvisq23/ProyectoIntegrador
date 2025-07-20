@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/almacen") // prefijo común si deseas agrupar
+@RequestMapping("/almacen")
 public class AlmacenWebController {
 
-    @GetMapping("/almacen_entrada_repuestos")
+    @GetMapping("/entrada_repuestos")
     public String EntradaRepuestosPage() {
         return "almacen_entrada_repuestos";
     }

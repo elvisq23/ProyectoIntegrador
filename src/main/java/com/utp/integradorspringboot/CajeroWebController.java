@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/cajero") // prefijo común si deseas agrupar
+@RequestMapping("/cajero")
 public class CajeroWebController {
 
-    @GetMapping("/cajero_emitir_pagos")
+    @GetMapping("/emitir_pagos")
     public String EmitirPagosPage() {
         return "cajero_emitir_pagos";
     }

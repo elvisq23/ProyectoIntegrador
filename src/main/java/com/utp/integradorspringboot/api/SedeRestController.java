@@ -13,13 +13,13 @@ import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/sedes")
 public class SedeRestController {
 
     @Autowired
     SedeRepository sedeRepository;
 
-    @PostMapping("/sedes")
+    @PostMapping
     public ResponseEntity<Sede> createSede(@RequestBody Sede sede) {
         try {
             Sede _sede = sedeRepository.save(new Sede(
@@ -36,7 +36,7 @@ public class SedeRestController {
         }
     }
 
-    @GetMapping("/sedes")
+    @GetMapping
     public ResponseEntity<List<Sede>> getAllSedes(@RequestParam(required = false) String nombreSede) {
         try {
             List<Sede> sedes = new ArrayList<>();
@@ -57,7 +57,7 @@ public class SedeRestController {
         }
     }
 
-    @GetMapping("/sedes/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Sede> getSedeById(@PathVariable("id") Long id) { 
         Optional<Sede> sedeData = sedeRepository.findById(id);
 
@@ -68,7 +68,7 @@ public class SedeRestController {
         }
     }
 
-    @PutMapping("/sedes/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Sede> updateSede(@PathVariable("id") Long id, @RequestBody Sede sede) { 
         Optional<Sede> sedeData = sedeRepository.findById(id);
 
@@ -84,7 +84,7 @@ public class SedeRestController {
         }
     }
 
-    @DeleteMapping("/sedes/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteSede(@PathVariable("id") Long id) { 
         try {
             sedeRepository.deleteById(id);
