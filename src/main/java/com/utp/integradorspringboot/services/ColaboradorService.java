@@ -36,7 +36,7 @@ public class ColaboradorService {
     private List<String> getValidColaboratorRoleNames() {
         List<String> validRoles = rolRepository.findAll().stream()
                 .peek(rol -> System.out.println("DEBUG - Processing role: " + rol.getNombre() + " (ID: " + rol.getId() + ")"))
-                .filter(rol -> rol.getNombre() != null && !rol.getNombre().trim().isEmpty() && !rol.getNombre().equalsIgnoreCase("CONDUCTOR"))
+                .filter(rol -> rol.getNombre() != null && !rol.getNombre().trim().isEmpty() && !rol.getNombre().equalsIgnoreCase("ROLE_CONDUCTOR"))
                 .map(Rol::getNombre)
                 .collect(Collectors.toList());
         System.out.println("DEBUG - Valid Colaborator Role Names for query: " + validRoles);
@@ -99,7 +99,7 @@ public class ColaboradorService {
         Rol rol = rolRepository.findById(request.getRolId())
                                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con ID: " + request.getRolId()));
 
-        if (rol.getNombre().equalsIgnoreCase("CONDUCTOR")) {
+        if (rol.getNombre().equalsIgnoreCase("ROLE_CONDUCTOR")) {
             throw new IllegalArgumentException("El rol 'CONDUCTOR' no es un rol válido para colaboradores.");
         }
 
@@ -155,7 +155,7 @@ public class ColaboradorService {
         Rol rol = rolRepository.findById(request.getRolId())
                                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con ID: " + request.getRolId()));
 
-        if (rol.getNombre().equalsIgnoreCase("CONDUCTOR")) {
+        if (rol.getNombre().equalsIgnoreCase("ROLE_CONDUCTOR")) {
             throw new IllegalArgumentException("El rol 'CONDUCTOR' no es un rol válido para colaboradores.");
         }
 
@@ -181,7 +181,7 @@ public class ColaboradorService {
     @Transactional(readOnly = true)
     public List<Rol> getColaboradorRoles() {
         return rolRepository.findAll().stream()
-                .filter(rol -> rol.getNombre() != null && !rol.getNombre().trim().isEmpty() && !rol.getNombre().equalsIgnoreCase("CONDUCTOR"))
+                .filter(rol -> rol.getNombre() != null && !rol.getNombre().trim().isEmpty() && !rol.getNombre().equalsIgnoreCase("ROLE_CONDUCTOR"))
                 .collect(Collectors.toList());
     }
 }

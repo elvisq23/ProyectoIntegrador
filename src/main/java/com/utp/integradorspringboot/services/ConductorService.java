@@ -30,14 +30,14 @@ public class ConductorService {
 
     public List<Usuario> getAllConductores(String searchQuery) {
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            return usuarioRepository.findActiveConductoresBySearchQuery("CONDUCTOR", searchQuery);
+            return usuarioRepository.findActiveConductoresBySearchQuery("ROLE_CONDUCTOR", searchQuery);
         }
-        return usuarioRepository.findByRoles_NombreAndEstadoTrue("CONDUCTOR");
+        return usuarioRepository.findByRoles_NombreAndEstadoTrue("ROLE_CONDUCTOR");
     }
 
     public Optional<Usuario> getConductorById(Long id) {
         return usuarioRepository.findById(id)
-                .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "CONDUCTOR".equals(rol.getNombre())));
+                .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "ROLE_CONDUCTOR".equals(rol.getNombre())));
     }
 
     @Transactional
@@ -101,7 +101,7 @@ public class ConductorService {
 
         existingConductor.setEstado(request.getEstado() != null ? request.getEstado() : existingConductor.getEstado());
 
-        Rol rolConductor = rolRepository.findByNombre("CONDUCTOR")
+        Rol rolConductor = rolRepository.findByNombre("ROLE_CONDUCTOR")
                                     .orElseThrow(() -> new RuntimeException("Rol CONDUCTOR no encontrado. ¡Debe existir en la BD!"));
         if (!existingConductor.getRoles().contains(rolConductor)) {
             existingConductor.addRol(rolConductor);
@@ -113,7 +113,7 @@ public class ConductorService {
     @Transactional
     public void deactivateConductor(Long id) {
         Usuario conductor = usuarioRepository.findById(id)
-            .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "CONDUCTOR".equals(rol.getNombre())))
+            .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "ROLE_CONDUCTOR".equals(rol.getNombre())))
             .orElseThrow(() -> new RuntimeException("Conductor no encontrado con ID: " + id + " o no tiene el rol de CONDUCTOR."));
 
         conductor.setEstado(false);
