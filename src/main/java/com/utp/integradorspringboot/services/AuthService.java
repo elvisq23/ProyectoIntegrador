@@ -54,7 +54,7 @@ public class AuthService {
         nuevoUsuario.setFechaRegistro(LocalDateTime.now());
         nuevoUsuario.setEstado(false);
 
-        Rol rolConductor = rolRepository.findByNombre("CONDUCTOR")
+        Rol rolConductor = rolRepository.findByNombre("ROLE_DUENO")
                                     .orElseThrow(() -> new RuntimeException("Rol CONDUCTOR no encontrado. ¡Debe existir en la BD!"));
         Set<Rol> roles = new HashSet<>();
         roles.add(rolConductor);
