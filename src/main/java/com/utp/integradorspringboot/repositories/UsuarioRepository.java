@@ -3,7 +3,7 @@ package com.utp.integradorspringboot.repositories;
 import com.utp.integradorspringboot.models.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param; 
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByCorreo(String correo);
     Optional<Usuario> findByDni(String dni);
+
+    // **¡AÑADE ESTA LÍNEA AQUÍ!**
+    Optional<Usuario> findByCodigoVerificacion(String codigoVerificacion); // <-- ¡Esta es la que faltaba!
 
     List<Usuario> findByRoles_NombreAndEstadoTrue(String roleName);
 
@@ -39,6 +42,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.sede s LEFT JOIN FETCH u.roles r WHERE u.id = :id")
     Optional<Usuario> findByIdWithDetails(@Param("id") Long id);
-    
+
     Optional<Usuario> findByCorreoIgnoreCase(String correo);
 }

@@ -33,4 +33,15 @@ public class IndexController {
         model.addAttribute("email", email);
         return "verify_email";
     }
+    
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "forgot_password"; // Este nombre debe coincidir con tu archivo HTML (e.g., forgot_password.html)
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordPage(@RequestParam(name = "token", required = false) String token, Model model) {
+        model.addAttribute("token", token); // Pasa el token a la vista para que el formulario POST lo envíe
+        return "reset_password"; // Este nombre debe coincidir con tu archivo HTML (e.g., reset_password.html)
+    }
 }

@@ -40,13 +40,17 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/login"),
                     new AntPathRequestMatcher("/register"),
                     new AntPathRequestMatcher("/verify-email"),
-                    new AntPathRequestMatcher("/api/auth/**"),
+                    // --- ¡AÑADE ESTAS DOS LÍNEAS! ---
+                    new AntPathRequestMatcher("/forgot-password"), // Página para solicitar restablecimiento
+                    new AntPathRequestMatcher("/reset-password"),  // Página para establecer nueva contraseña
+                    // ---------------------------------
+                    new AntPathRequestMatcher("/api/auth/**"), // Esto ya cubre los POSTs a /api/auth/*
                     new AntPathRequestMatcher("/css/**"),
                     new AntPathRequestMatcher("/js/**"),
                     new AntPathRequestMatcher("/images/**"),
                     new AntPathRequestMatcher("/favicon.ico"),
                     new AntPathRequestMatcher("/error")
-                ).permitAll()
+                ).permitAll() // Permitir acceso sin autenticación
 
                 // ====================================================================
                 // ¡¡¡ESTAS SON LAS REGLAS DE AUTORIZACIÓN BASADAS EN ROLES QUE FALTABAN!!!

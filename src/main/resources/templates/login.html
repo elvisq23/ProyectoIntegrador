@@ -13,8 +13,8 @@
         .logo-img {
             display: block;
             margin: 0 auto 15px;
-            max-width: 200px;    
-            height: auto;  
+            max-width: 200px;
+            height: auto;
         }
         .login-container {
             max-width: 400px;
@@ -69,8 +69,9 @@
                     <a th:href="@{/index}" class="back-icon-btn" title="Volver al Inicio">
                         <i class="bi bi-arrow-left-circle"></i> </a>
 
-                    <img src="/images/logo.png" alt="MetalCars" class="logo-img">    
-                    <div class="mt-3">                      
+                    <img src="/images/logo.png" alt="MetalCars" class="logo-img">
+
+                    <div class="mt-3">
                         <h2 class="mb-4 text-center">Iniciar Sesión</h2>
 
                         <div th:if="${param.error}" class="alert alert-danger" role="alert">
@@ -84,6 +85,9 @@
                         <div th:if="${successMessage}" class="alert alert-success" role="alert">
                             <span th:text="${successMessage}"></span>
                         </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                            <span th:text="${errorMessage}"></span>
+                        </div>
 
                         <form th:action="@{/authenticate}" method="post">
                             <div class="mb-3">
@@ -92,14 +96,14 @@
                             <div class="mb-3">
                                 <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
                             </div>
-                            
-                            <p><a href="/recuperar">Recuperar contraseña</a></p>
-                            
+
+                            <p><a th:href="@{/forgot-password}">Recuperar contraseña</a></p>
+
                             <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar Sesión</button>
                         </form>
 
                         <p class="text-center">¿No tienes una cuenta? <a th:href="@{/register}">Regístrate aquí</a></p>
-                        
+
                     </div>
                 </div>
             </div>
