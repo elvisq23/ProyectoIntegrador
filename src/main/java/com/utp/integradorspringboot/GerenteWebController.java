@@ -32,4 +32,9 @@ public class GerenteWebController {
     public String Sedespage() {
         return "gerente_sedes";
     }
+
+    @GetMapping("/proveedores")
+    public String Proveedorespage() {
+        return "gerente_proveedores";
+    }
 }

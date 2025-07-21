@@ -3,9 +3,11 @@ package com.utp.integradorspringboot;
 import com.utp.integradorspringboot.models.Rol;
 import com.utp.integradorspringboot.models.Sede;
 import com.utp.integradorspringboot.models.Usuario;
+import com.utp.integradorspringboot.models.Proveedor;
 import com.utp.integradorspringboot.repositories.RolRepository;
 import com.utp.integradorspringboot.repositories.SedeRepository;
 import com.utp.integradorspringboot.repositories.UsuarioRepository;
+import com.utp.integradorspringboot.repositories.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,8 @@ public class DatabaseSeeder {
     private SedeRepository sedeRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private ProveedorRepository proveedorRepository;
 
     @Bean
     public CommandLineRunner seedDatabase() {
@@ -30,6 +34,7 @@ public class DatabaseSeeder {
             seedRoles();
             seedSedes();
             seedUsuariosYRoles();
+            seedProveedores();
         };
     }
 
@@ -93,6 +98,21 @@ public class DatabaseSeeder {
 
             usuarioRepository.saveAll(List.of(
                     dueno, gerente, encargado, recepcion, mecanico, almacen, cajero, conductor
+            ));
+        }
+    }
+
+    private void seedProveedores() {
+        if (proveedorRepository.count() == 0) {
+            proveedorRepository.saveAll(List.of(
+                    new Proveedor("20100070031", "Volvo Perú S.A.", "958972160", "info@volvorepuestos.com.pe", "Panamericana Sur Km 23.88 – Lurín, Lima"),
+                    new Proveedor("20454981317", "Repuestos de Carros Perú", "14858377", "ventas@repuestosdecarros.autos", "Av. Los Alisos cuadra 6, Lima 39, Perú"),
+                    new Proveedor("20600595955", "Autorepuestos del Perú SAC", "955701483", "contacto@turepuesto.pe", "Av. Iquitos 326, La Victoria, Lima"),
+                    new Proveedor("20559109101", "Lumaxsa", "948765034", "informes@lumaxsa.com.pe", "Sucursales en Lima, Arequipa, Cusco, Huánuco"),
+                    new Proveedor("20481892296", "Repuestos Miguelitos SAC", "(044)203981", "info@repuestosmiguelitos.com", "Av. César Vallejo 833, Urb. Aranjuez, Trujillo"),
+                    new Proveedor("20100085578", "Repuestos Nuevos S.A.", "(01)211-9900", "repuestosnuevos@repuestos.com", "Av. República de Panamá 2075, La Victoria, Lima"),
+                    new Proveedor("20144640269", "Autopartes S.A.", "(01)324-2600", "ventas@autopartes.pe", "Av. México 1136, La Victoria, Lima"),
+                    new Proveedor("20547772211", "Autopartes R&L S.A.C.", "960403701", "autopartesrlsac@gmail.com", "Av. Iquitos #350/#327 Int. 102, La Victoria, Lima")
             ));
         }
     }
