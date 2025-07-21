@@ -4,15 +4,18 @@ import com.utp.integradorspringboot.models.Rol;
 import com.utp.integradorspringboot.models.Sede;
 import com.utp.integradorspringboot.models.Usuario;
 import com.utp.integradorspringboot.models.Proveedor;
+import com.utp.integradorspringboot.models.Servicio;
 import com.utp.integradorspringboot.repositories.RolRepository;
 import com.utp.integradorspringboot.repositories.SedeRepository;
 import com.utp.integradorspringboot.repositories.UsuarioRepository;
 import com.utp.integradorspringboot.repositories.ProveedorRepository;
+import com.utp.integradorspringboot.repositories.ServicioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,6 +30,8 @@ public class DatabaseSeeder {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private ProveedorRepository proveedorRepository;
+    @Autowired
+    private ServicioRepository servicioRepository;
 
     @Bean
     public CommandLineRunner seedDatabase() {
@@ -35,6 +40,7 @@ public class DatabaseSeeder {
             seedSedes();
             seedUsuariosYRoles();
             seedProveedores();
+            seedServicios();
         };
     }
 
@@ -117,5 +123,26 @@ public class DatabaseSeeder {
         }
     }
 
+    private void seedServicios() {
+        if (servicioRepository.count() == 0) {
+            servicioRepository.saveAll(List.of(
+                    new Servicio("Cambio de aceite", "Servicio de drenado y reemplazo del aceite del motor, incluye revisión de nivel.", new BigDecimal("70.00")),
+                    new Servicio("Alineamiento y balanceo", "Corrección del ángulo de las ruedas y distribución del peso en llantas.", new BigDecimal("90.00")),
+                    new Servicio("Revisión de frenos", "Inspección y mantenimiento de pastillas, discos y líquido de freno.", new BigDecimal("80.00")),
+                    new Servicio("Cambio de pastillas de freno", "Reemplazo de pastillas desgastadas en ruedas delanteras o traseras.", new BigDecimal("120.00")),
+                    new Servicio("Servicio de escaneo electrónico", "Diagnóstico computarizado de la ECU del vehículo para detectar fallas.", new BigDecimal("60.00")),
+                    new Servicio("Cambio de bujías", "Sustitución de bujías desgastadas para mejorar la combustión.", new BigDecimal("50.00")),
+                    new Servicio("Limpieza de inyectores", "Limpieza del sistema de inyección para mejorar el rendimiento del motor.", new BigDecimal("100.00")),
+                    new Servicio("Revisión general", "Inspección integral de luces, motor, suspensión, frenos y niveles de fluidos.", new BigDecimal("110.00")),
+                    new Servicio("Servicio de suspensión", "Diagnóstico y reparación de amortiguadores, resortes y bujes.", new BigDecimal("130.00")),
+                    new Servicio("Servicio de sistema eléctrico", "Diagnóstico y reparación de alternador, batería, fusibles y cableado.", new BigDecimal("85.00")),
+                    new Servicio("Cambio de filtro de aire", "Sustitución del filtro de aire para mejorar el rendimiento del motor.", new BigDecimal("40.00")),
+                    new Servicio("Revisión y carga de batería", "Verificación del estado y carga de batería del vehículo.", new BigDecimal("35.00")),
+                    new Servicio("Lavado completo", "Lavado exterior e interior, encerado y aspirado.", new BigDecimal("50.00")),
+                    new Servicio("Servicio de aire acondicionado", "Revisión, recarga y mantenimiento del sistema de A/C.", new BigDecimal("120.00")),
+                    new Servicio("Mantenimiento preventivo", "Servicio programado para evitar futuras averías (revisión básica + cambio de fluidos).", new BigDecimal("150.00"))
+            ));
+        }
+    }
 
 }
