@@ -62,7 +62,7 @@ public class ConductorService {
         nuevoConductor.setFechaRegistro(LocalDateTime.now());
         nuevoConductor.setEstado(request.getEstado() != null ? request.getEstado() : true);
 
-        Rol rolConductor = rolRepository.findByNombre("CONDUCTOR")
+        Rol rolConductor = rolRepository.findByNombre("ROLE_CONDUCTOR")
                                     .orElseThrow(() -> new RuntimeException("Rol CONDUCTOR no encontrado. ¡Debe existir en la BD!"));
         Set<Rol> roles = new HashSet<>();
         roles.add(rolConductor);
