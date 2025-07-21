@@ -17,4 +17,8 @@ public class AsesorWebController {
     public String ReservasPage() {
         return "asesor_reservas_del_dia";
     }
+     @GetMapping("/asesor_vehiculo")
+    public String VehiculoPage() {
+        return "asesor_vehiculo";
+    }
 }

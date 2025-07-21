@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "vehiculos")
-public class Vehiculo implements Serializable {
+@Table(name = "reservas_dia")
+public class Reservadia implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -13,49 +13,49 @@ public class Vehiculo implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombres", length = 100)
+    @Column(length = 100)
     private String nombres;
 
-    @Column(name = "apellidos", length = 100)
+    @Column(length = 100)
     private String apellidos;
 
-    @Column(name = "marca", length = 50)
+    @Column(length = 50)
     private String marca;
 
-    @Column(name = "modelo", length = 50)
+    @Column(length = 50)
     private String modelo;
 
-    @Column(name = "placa", length = 15)
+    @Column(length = 20)
     private String placa;
 
-    @Column(name = "anio")
-    private Integer anio;
+    @Column(length = 100)
+    private String sede;
 
-    @Column(name = "color", length = 30)
-    private String color;
+    @Column(name = "llego")
+    private Boolean llego;
 
-    public Vehiculo() {
+    public Reservadia() {
     }
 
-    public Vehiculo(String nombres, String apellidos, String marca, String modelo, String placa, Integer anio, String color) {
+    public Reservadia(String nombres, String apellidos, String marca, String modelo, String placa, String sede, Boolean llego) {
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.marca = marca;
         this.modelo = modelo;
         this.placa = placa;
-        this.anio = anio;
-        this.color = color;
+        this.sede = sede;
+        this.llego = llego;
     }
 
-    public Vehiculo(Long id, String nombres, String apellidos, String marca, String modelo, String placa, Integer anio, String color) {
+    public Reservadia(Long id, String nombres, String apellidos, String marca, String modelo, String placa, String sede, Boolean llego) {
         this.id = id;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.marca = marca;
         this.modelo = modelo;
         this.placa = placa;
-        this.anio = anio;
-        this.color = color;
+        this.sede = sede;
+        this.llego = llego;
     }
 
     public Long getId() {
@@ -106,20 +106,20 @@ public class Vehiculo implements Serializable {
         this.placa = placa;
     }
 
-    public Integer getAnio() {
-        return anio;
+    public String getSede() {
+        return sede;
     }
 
-    public void setAnio(Integer anio) {
-        this.anio = anio;
+    public void setSede(String sede) {
+        this.sede = sede;
     }
 
-    public String getColor() {
-        return color;
+    public Boolean getLlego() {
+        return llego;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setLlego(Boolean llego) {
+        this.llego = llego;
     }
 
     @Override
@@ -128,25 +128,25 @@ public class Vehiculo implements Serializable {
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof Vehiculo)) {
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Reservadia)) {
             return false;
         }
-        Vehiculo other = (Vehiculo) object;
+        Reservadia other = (Reservadia) obj;
         return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override
     public String toString() {
-        return "Vehiculo{" +
+        return "Reservadia{" +
                "id=" + id +
                ", nombres='" + nombres + '\'' +
                ", apellidos='" + apellidos + '\'' +
                ", marca='" + marca + '\'' +
                ", modelo='" + modelo + '\'' +
                ", placa='" + placa + '\'' +
-               ", anio=" + anio +
-               ", color='" + color + '\'' +
+               ", sede='" + sede + '\'' +
+               ", llego=" + llego +
                '}';
     }
 }

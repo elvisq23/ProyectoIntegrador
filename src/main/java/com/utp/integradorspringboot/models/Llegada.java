@@ -2,10 +2,11 @@ package com.utp.integradorspringboot.models;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "vehiculos")
-public class Vehiculo implements Serializable {
+@Table(name = "llegadas")
+public class Llegada implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,37 +26,42 @@ public class Vehiculo implements Serializable {
     @Column(name = "modelo", length = 50)
     private String modelo;
 
-    @Column(name = "placa", length = 15)
+    @Column(name = "placa", length = 20)
     private String placa;
-
-    @Column(name = "anio")
-    private Integer anio;
 
     @Column(name = "color", length = 30)
     private String color;
 
-    public Vehiculo() {
+    @Column(name = "fecha_hora")
+    private LocalDateTime fechaHora;
+
+    public Llegada() {
     }
 
-    public Vehiculo(String nombres, String apellidos, String marca, String modelo, String placa, Integer anio, String color) {
+    public Llegada(String nombres, String apellidos, String marca, String modelo, String placa, String color) {
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.marca = marca;
         this.modelo = modelo;
         this.placa = placa;
-        this.anio = anio;
         this.color = color;
+        this.fechaHora = LocalDateTime.now();
     }
 
-    public Vehiculo(Long id, String nombres, String apellidos, String marca, String modelo, String placa, Integer anio, String color) {
+    public Llegada(Long id, String nombres, String apellidos, String marca, String modelo, String placa, String color, LocalDateTime fechaHora) {
         this.id = id;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.marca = marca;
         this.modelo = modelo;
         this.placa = placa;
-        this.anio = anio;
         this.color = color;
+        this.fechaHora = fechaHora;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaHora = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -106,20 +112,20 @@ public class Vehiculo implements Serializable {
         this.placa = placa;
     }
 
-    public Integer getAnio() {
-        return anio;
-    }
-
-    public void setAnio(Integer anio) {
-        this.anio = anio;
-    }
-
     public String getColor() {
         return color;
     }
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
+    }
+
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
     }
 
     @Override
@@ -129,24 +135,24 @@ public class Vehiculo implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Vehiculo)) {
+        if (!(object instanceof Llegada)) {
             return false;
         }
-        Vehiculo other = (Vehiculo) object;
+        Llegada other = (Llegada) object;
         return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override
     public String toString() {
-        return "Vehiculo{" +
+        return "Llegada{" +
                "id=" + id +
                ", nombres='" + nombres + '\'' +
                ", apellidos='" + apellidos + '\'' +
                ", marca='" + marca + '\'' +
                ", modelo='" + modelo + '\'' +
                ", placa='" + placa + '\'' +
-               ", anio=" + anio +
                ", color='" + color + '\'' +
+               ", fechaHora=" + fechaHora +
                '}';
     }
 }

@@ -168,6 +168,7 @@
 
         <a th:href="@{/asesor/asesor_registrar_llegada}" class="nav-link" sec:authorize="hasRole('ROLE_ASESOR')">Registrar llegada</a>
         <a th:href="@{/asesor/asesor_reservas_del_dia}" class="nav-link" sec:authorize="hasRole('ROLE_ASESOR')">Reservas del día</a>
+        <a th:href="@{/asesor/asesor_vehiculo}" class="nav-link" sec:authorize="hasRole('ROLE_ASESOR')">Vehiculo</a>
 
         <a th:href="@{/cajero/cajero_emitir_pagos}" class="nav-link" sec:authorize="hasRole('ROLE_CAJERO')">Emisión de Pagos</a>
         <a th:href="@{/cajero/cajero_pagos_historial}" class="nav-link" sec:authorize="hasRole('ROLE_CAJERO')">Historial de pagos</a>
