@@ -1,4 +1,5 @@
 package com.utp.integradorspringboot.api;
+/*
 
 import com.utp.integradorspringboot.dto.ColaboradorRequestDTO;
 import com.utp.integradorspringboot.dto.ColaboradorResponseDTO;
@@ -131,4 +132,4 @@ public class ColaboradorRestController {
         List<Rol> roles = rolService.getAllRoles();
         return ResponseEntity.ok(roles);
     }
-}
+}*/

@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet; 
 
-@Service
+//@Service
 public class AuthService {
 
     @Autowired

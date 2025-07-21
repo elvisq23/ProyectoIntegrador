@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar">
+    <nav class="d-flex flex-column bg-dark text-white vh-100 position-fixed p-3" style="width: 250px;">
+        <h4>Taller</h4>
+        <hr>
+
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li><a th:href="@{/home}" class="nav-link text-white">Inicio</a></li>
+
+            <!-- Conductor -->
+            <li th:if="${#authorization.expression('hasRole(''CONDUCTOR'')')}">
+                <a th:href="@{/conductor/reservar}" class="nav-link text-white">Reservar Atención</a>
+            </li>
+            <li th:if="${#authorization.expression('hasRole(''CONDUCTOR'')')}">
+                <a th:href="@{/conductor/atenciones}" class="nav-link text-white">Mis Atenciones</a>
+            </li>
+
+            <!-- Recepción -->
+            <li th:if="${#authorization.expression('hasRole(''RECEPCION'')')}">
+                <a th:href="@{/recepcion/inicio}" class="nav-link text-white">Recepción Vehículos</a>
+            </li>
+
+            <!-- Encargado -->
+            <li th:if="${#authorization.expression('hasRole(''ENCARGADO'')')}">
+                <a th:href="@{/encargado/diagnosticos}" class="nav-link text-white">Revisar Diagnósticos</a>
+            </li>
+
+            <!-- Mecánico -->
+            <li th:if="${#authorization.expression('hasRole(''MECANICO'')')}">
+                <a th:href="@{/mecanico/pendientes}" class="nav-link text-white">Diagnósticos Pendientes</a>
+            </li>
+            <li th:if="${#authorization.expression('hasRole(''MECANICO'')')}">
+                <a th:href="@{/mecanico/atenciones}" class="nav-link text-white">Atenciones</a>
+            </li>
+
+            <!-- Cajero -->
+            <li th:if="${#authorization.expression('hasRole(''CAJERO'')')}">
+                <a th:href="@{/cajero/pagos}" class="nav-link text-white">Pagos</a>
+            </li>
+
+            <!-- Cierre de sesión -->
+            <li><a th:href="@{/logout}" class="nav-link text-white">Cerrar sesión</a></li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>

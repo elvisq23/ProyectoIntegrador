@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+/*
 
 @Service
 public class ConductorService {
@@ -119,4 +120,4 @@ public class ConductorService {
         conductor.setEstado(false);
         usuarioRepository.save(conductor);
     }
-}
+}*/

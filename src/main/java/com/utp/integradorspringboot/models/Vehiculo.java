@@ -42,21 +42,13 @@ public class Vehiculo implements Serializable {
     @NotNull(message = "El color es obligatorio")
     private String color;
 
-    // Relaciones (opcional: comentadas si no se usan directamente en la landing)
-    /*@OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Reserva> reservas;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario propietario;
 
-    @OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Diagnostico> diagnosticos;
-
-    @OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Reparacion> reparaciones;*/
-
-    // Constructor vacío
     public Vehiculo() {
     }
 
-    // Constructor principal (sin ID)
     public Vehiculo(String placa, String marca, String modelo, Integer anio, String color) {
         this.placa = placa;
         this.marca = marca;
@@ -65,7 +57,6 @@ public class Vehiculo implements Serializable {
         this.color = color;
     }
 
-    // Constructor adicional (con ID)
     public Vehiculo(Long id, String placa, String marca, String modelo, Integer anio, String color) {
         this.id = id;
         this.placa = placa;
@@ -75,7 +66,6 @@ public class Vehiculo implements Serializable {
         this.color = color;
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -123,30 +113,6 @@ public class Vehiculo implements Serializable {
     public void setColor(String color) {
         this.color = color;
     }
-
-    /*public Set<Reserva> getReservas() {
-        return reservas;
-    }
-
-    public void setReservas(Set<Reserva> reservas) {
-        this.reservas = reservas;
-    }
-
-    public Set<Diagnostico> getDiagnosticos() {
-        return diagnosticos;
-    }
-
-    public void setDiagnosticos(Set<Diagnostico> diagnosticos) {
-        this.diagnosticos = diagnosticos;
-    }
-
-    public Set<Reparacion> getReparaciones() {
-        return reparaciones;
-    }
-
-    public void setReparaciones(Set<Reparacion> reparaciones) {
-        this.reparaciones = reparaciones;
-    }*/
 
     @Override
     public int hashCode() {

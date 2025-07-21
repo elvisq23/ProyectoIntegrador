@@ -28,10 +28,8 @@ public class Proveedor implements Serializable {
     @Column(length = 255)
     private String direccion;
 
-    // Constructor vacío
     public Proveedor() {}
 
-    // Constructor personalizado (opcional)
     public Proveedor(String ruc, String razonSocial, String telefono, String correo, String direccion) {
         this.ruc = ruc;
         this.razonSocial = razonSocial;
@@ -40,7 +38,6 @@ public class Proveedor implements Serializable {
         this.direccion = direccion;
     }
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

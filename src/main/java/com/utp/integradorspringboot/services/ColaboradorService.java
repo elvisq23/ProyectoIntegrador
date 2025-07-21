@@ -1,4 +1,5 @@
 package com.utp.integradorspringboot.services;
+/*
 
 import com.utp.integradorspringboot.dto.ColaboradorRequestDTO;
 import com.utp.integradorspringboot.models.Rol;
@@ -183,4 +184,4 @@ public class ColaboradorService {
                 .filter(rol -> rol.getNombre() != null && !rol.getNombre().trim().isEmpty() && !rol.getNombre().equalsIgnoreCase("CONDUCTOR"))
                 .collect(Collectors.toList());
     }
-}
+}*/

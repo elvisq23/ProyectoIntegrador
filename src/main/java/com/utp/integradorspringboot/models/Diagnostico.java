@@ -19,24 +19,28 @@ public class Diagnostico implements Serializable {
     private Integer id;
 
     @Column(length = 1000)
-    private String descripcion;
+    private String descripcionFallas;
+
+    @Column(length = 500)
+    private String serviciosRecomendados;
 
     @OneToOne
-    @JoinColumn(name = "orden_servicio_id", unique = true)
-    @JsonBackReference
-    private OrdenServicio ordenServicio;
+    @JoinColumn(name = "atencion_id")
+    private AtencionVehiculo atencion;
 
-    // ----- Constructores -----
+    @ManyToOne
+    private Usuario mecanico;
 
     public Diagnostico() {
     }
 
-    public Diagnostico(Integer id, String descripcion, OrdenServicio ordenServicio) {
+    public Diagnostico(Integer id, String descripcionFallas, String serviciosRecomendados, AtencionVehiculo atencion, Usuario mecanico) {
         this.id = id;
-        this.descripcion = descripcion;
-        this.ordenServicio = ordenServicio;
+        this.descripcionFallas = descripcionFallas;
+        this.serviciosRecomendados = serviciosRecomendados;
+        this.atencion = atencion;
+        this.mecanico = mecanico;
     }
-
 
     public Integer getId() {
         return id;
@@ -46,40 +50,35 @@ public class Diagnostico implements Serializable {
         this.id = id;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public String getDescripcionFallas() {
+        return descripcionFallas;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setDescripcionFallas(String descripcionFallas) {
+        this.descripcionFallas = descripcionFallas;
     }
 
-    public OrdenServicio getOrdenServicio() {
-        return ordenServicio;
+    public String getServiciosRecomendados() {
+        return serviciosRecomendados;
     }
 
-    public void setOrdenServicio(OrdenServicio ordenServicio) {
-        this.ordenServicio = ordenServicio;
+    public void setServiciosRecomendados(String serviciosRecomendados) {
+        this.serviciosRecomendados = serviciosRecomendados;
     }
 
-    @Override
-    public int hashCode() {
-        return (id != null ? id.hashCode() : 0);
+    public AtencionVehiculo getAtencion() {
+        return atencion;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Diagnostico)) return false;
-        Diagnostico other = (Diagnostico) obj;
-        return this.id != null && this.id.equals(other.id);
+    public void setAtencion(AtencionVehiculo atencion) {
+        this.atencion = atencion;
     }
 
-    @Override
-    public String toString() {
-        return "Diagnostico{" +
-                "id=" + id +
-                ", descripcion='" + descripcion + '\'' +
-                ", ordenServicio=" + (ordenServicio != null ? ordenServicio.getId() : null) +
-                '}';
+    public Usuario getMecanico() {
+        return mecanico;
+    }
+
+    public void setMecanico(Usuario mecanico) {
+        this.mecanico = mecanico;
     }
 }

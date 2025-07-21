@@ -1,5 +1,6 @@
 package com.utp.integradorspringboot.api;
 
+/*
 import com.utp.integradorspringboot.dto.RegisterRequest;
 import com.utp.integradorspringboot.services.AuthService;
 import jakarta.validation.Valid;
@@ -84,4 +85,4 @@ public class AuthRestController {
             return "redirect:/verify-email";
         }
     }
-}
+}*/

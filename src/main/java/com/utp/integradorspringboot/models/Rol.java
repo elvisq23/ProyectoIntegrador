@@ -79,4 +79,9 @@ public class Rol {
     public int hashCode() {
         return nombre.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return this.nombre;
+    }
 }
