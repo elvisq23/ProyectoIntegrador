@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout_gerente">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout_dueno">
 <head>
-    <title>Gestión de Servicios</title>
+    <title>Gestión de Proveedores</title>
     <style>
         .main-content {
             margin-right: 240px;
@@ -20,44 +20,49 @@
     </style>
 </head>
 <body>
-<div layout:fragment="content" id="serviciosApp" class="container mt-4">
-    <h1>Gestión de Servicios</h1>
+<div layout:fragment="content" id="proveedoresApp" class="container mt-4">
+    <h1>Gestión de Proveedores</h1>
 
     <div class="mb-3">
-        <input type="text" class="form-control" placeholder="Buscar por nombre..." v-model="search" @input="debouncedSearch">
+        <input type="text" class="form-control" placeholder="Buscar por RUC o Razón Social..."
+               v-model="search" @input="debouncedSearch">
     </div>
 
     <p class="text-end">
-        <button class="btn btn-primary" @click="nuevo">Nuevo Servicio</button>
+        <button class="btn btn-primary" @click="nuevo">Nuevo Proveedor</button>
     </p>
 
     <table class="table table-bordered table-striped">
         <thead>
         <tr>
             <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Precio</th>
+            <th>RUC</th>
+            <th>Razón Social</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Dirección</th>
             <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="item in entidades" :key="item.id">
             <td>{{ item.id }}</td>
-            <td>{{ item.nombre }}</td>
-            <td>{{ item.descripcion }}</td>
-            <td>S/. {{ item.precio }}</td>
+            <td>{{ item.ruc }}</td>
+            <td>{{ item.razonSocial }}</td>
+            <td>{{ item.telefono }}</td>
+            <td>{{ item.correo }}</td>
+            <td>{{ item.direccion }}</td>
             <td class="text-end">
-                <button class="btn btn-info btn-sm me-1" @click="editar(item.id)">
+                <button class="btn btn-info btn-sm me-1" @click="editar(item.id)" title="Editar">
                     <i class="bi bi-pencil-square"></i>
                 </button>
-                <button class="btn btn-danger btn-sm" @click="eliminar(item.id)">
+                <button class="btn btn-danger btn-sm" @click="eliminar(item.id)" title="Eliminar">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
         </tr>
         <tr v-if="entidades.length === 0">
-            <td colspan="5" class="text-center">No hay servicios registrados.</td>
+            <td colspan="7" class="text-center">No hay proveedores registrados.</td>
         </tr>
         </tbody>
     </table>
@@ -67,21 +72,29 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ entidad.id ? 'Editar Servicio' : 'Nuevo Servicio' }}</h5>
+                    <h5 class="modal-title">{{ entidad.id ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label>Nombre</label>
-                        <input class="form-control" v-model="entidad.nombre" required>
+                        <label>RUC</label>
+                        <input class="form-control" v-model="entidad.ruc" required maxlength="11">
                     </div>
                     <div class="mb-3">
-                        <label>Descripción</label>
-                        <textarea class="form-control" v-model="entidad.descripcion" rows="3"></textarea>
+                        <label>Razón Social</label>
+                        <input class="form-control" v-model="entidad.razonSocial" required>
                     </div>
                     <div class="mb-3">
-                        <label>Precio</label>
-                        <input class="form-control" type="number" v-model="entidad.precio" min="0" step="0.01">
+                        <label>Teléfono</label>
+                        <input class="form-control" v-model="entidad.telefono" maxlength="20">
+                    </div>
+                    <div class="mb-3">
+                        <label>Correo</label>
+                        <input class="form-control" type="email" v-model="entidad.correo">
+                    </div>
+                    <div class="mb-3">
+                        <label>Dirección</label>
+                        <input class="form-control" v-model="entidad.direccion">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -99,10 +112,10 @@
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Eliminar Servicio</h5>
+                    <h5 class="modal-title">Eliminar Proveedor</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">¿Estás seguro de eliminar este servicio?</div>
+                <div class="modal-body">¿Estás seguro de eliminar este proveedor?</div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" @click="confirmarEliminacion">Eliminar</button>
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -113,7 +126,7 @@
 </div>
 
 <script layout:fragment="script">
-    const API_SERVICIOS_URL = '/api/servicios';
+    const API_PROVEEDORES_URL = '/api/proveedores';
 
     function debounce(fn, delay) {
         let timeout;
@@ -124,35 +137,35 @@
     }
 
     new Vue({
-        el: '#serviciosApp',
+        el: '#proveedoresApp',
         data: {
             entidades: [],
-            entidad: { id: null, nombre: '', descripcion: '', precio: 0.0 },
+            entidad: { id: null, ruc: '', razonSocial: '', telefono: '', correo: '', direccion: '' },
             search: '',
             idToDelete: null
         },
         methods: {
             listar() {
-                this.$http.get(API_SERVICIOS_URL).then(res => this.entidades = res.data);
+                this.$http.get(API_PROVEEDORES_URL).then(res => this.entidades = res.data);
             },
             nuevo() {
-                this.entidad = { id: null, nombre: '', descripcion: '', precio: 0.0 };
+                this.entidad = { id: null, ruc: '', razonSocial: '', telefono: '', correo: '', direccion: '' };
                 $('#mdlEntidad').modal('show');
             },
             editar(id) {
-                this.$http.get(`${API_SERVICIOS_URL}/${id}`).then(res => {
+                this.$http.get(`${API_PROVEEDORES_URL}/${id}`).then(res => {
                     this.entidad = res.data;
                     $('#mdlEntidad').modal('show');
                 });
             },
             guardar() {
-                this.$http.post(API_SERVICIOS_URL, this.entidad).then(() => {
+                this.$http.post(API_PROVEEDORES_URL, this.entidad).then(() => {
                     this.listar();
                     $('#mdlEntidad').modal('hide');
                 });
             },
             actualizar() {
-                this.$http.put(`${API_SERVICIOS_URL}/${this.entidad.id}`, this.entidad).then(() => {
+                this.$http.put(`${API_PROVEEDORES_URL}/${this.entidad.id}`, this.entidad).then(() => {
                     this.listar();
                     $('#mdlEntidad').modal('hide');
                 });
@@ -162,7 +175,7 @@
                 $('#mdlEliminar').modal('show');
             },
             confirmarEliminacion() {
-                this.$http.delete(`${API_SERVICIOS_URL}/${this.idToDelete}`).then(() => {
+                this.$http.delete(`${API_PROVEEDORES_URL}/${this.idToDelete}`).then(() => {
                     this.listar();
                     $('#mdlEliminar').modal('hide');
                     this.idToDelete = null;
@@ -173,8 +186,8 @@
                 if (!filtro) {
                     this.listar();
                 } else {
-                    this.entidades = this.entidades.filter(s =>
-                        s.nombre.toLowerCase().includes(filtro)
+                    this.entidades = this.entidades.filter(p =>
+                        p.ruc.toLowerCase().includes(filtro) || p.razonSocial.toLowerCase().includes(filtro)
                     );
                 }
             }, 400)

@@ -15,18 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/gerente") // prefijo común si deseas agrupar
 public class GerenteWebController {
 
-    @Autowired
-    private DashboardService dashboardService;
-
-    @GetMapping("/asignacion")
-    public String AsignacionesDelGerentePage() {
-        return "gerente_asignacion";
-    }
-    
-    @GetMapping("/estado")
-    public String EstadosGerentePage() {
-        return "gerente_estado";
-    }
 
     @GetMapping("/colaboradores")
     public String colaboradoresPage() {
@@ -43,28 +31,14 @@ public class GerenteWebController {
         return "gerente_sedes";
     }
 
-    @GetMapping("/proveedores")
-    public String Proveedorespage() {
-        return "gerente_proveedores";
+    @GetMapping("/asignacion")
+    public String AsignacionesDelGerentePage() {
+        return "gerente_asignacion";
     }
+    
+    @GetMapping("/estado")
+    public String EstadosGerentePage() { return "gerente_estado"; }
 
-    @GetMapping("/servicios")
-    public String Serviciospage() {
-        return "gerente_servicios";
-    }
 
-    @GetMapping("/inventario")
-    public String InventarioPage() {
-        return "gerente_inventario";
-    }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("totalColaboradores", dashboardService.contarColaboradores());
-        model.addAttribute("totalConductores", dashboardService.contarConductores());
-        model.addAttribute("totalSedes", dashboardService.contarSedes());
-        model.addAttribute("totalServicios", dashboardService.contarServicios());
-        model.addAttribute("totalProveedores", dashboardService.contarProveedores());
-        return "gerente_dashboard";
-    }
 }
