@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="_layout">
+    <head>
+        <title>UTP Integrador - Almacén</title>
+        <style>
+            /* Puedes añadir estilos específicos aquí si es necesario para las pestañas o el contenido */
+        </style>
+    </head>
+<body>
+
+    <div layout:fragment="content" class="container mt-4">
+        <h1>Módulo de Almacén</h1>
+        <p>Gestión de repuestos y movimientos de inventario.</p>
+
+        <ul class="nav nav-tabs" id="almacenTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="stock-tab" data-bs-toggle="tab" data-bs-target="#stockContent" type="button" role="tab" aria-controls="stockContent" aria-selected="true">Stock</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="entrada-tab" data-bs-toggle="tab" data-bs-target="#entradaContent" type="button" role="tab" aria-controls="entradaContent" aria-selected="false">Entrada de Repuestos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="salida-tab" data-bs-toggle="tab" data-bs-target="#salidaContent" type="button" role="tab" aria-controls="salidaContent" aria-selected="false">Salida de Repuestos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="movimientos-tab" data-bs-toggle="tab" data-bs-target="#movimientosContent" type="button" role="tab" aria-controls="movimientosContent" aria-selected="false">Movimientos</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="almacenTabContent">
+            <div class="tab-pane fade show active" id="stockContent" role="tabpanel" aria-labelledby="stock-tab">
+                <div th:replace="~{repuestos :: content}"></div> 
+            </div>
+            <div class="tab-pane fade" id="entradaContent" role="tabpanel" aria-labelledby="entrada-tab">
+                <div th:replace="~{entrada_repuestos :: content}"></div> 
+            </div>
+            <div class="tab-pane fade" id="salidaContent" role="tabpanel" aria-labelledby="salida-tab">
+                <div th:replace="~{salida_repuestos :: content}"></div>
+            </div>
+            <div class="tab-pane fade" id="movimientosContent" role="tabpanel" aria-labelledby="movimientos-tab">
+                <div th:replace="~{movimientos_repuestos :: content}"></div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="script">
+        // URLs de la API (globalmente disponibles para todas las apps Vue aquí)
+        const API_REPUESTOS_URL = '/api/repuestos';
+        const API_ENTRADAS_REPUESTOS_URL = '/api/entradas-repuestos';
+        const API_SALIDAS_REPUESTOS_URL = '/api/salidas-repuestos';
+        const API_ORDENES_SERVICIO_URL = '/api/ordenes-servicio'; // Añadida URL para Cajero
+
+        // Función debounce reutilizable
+        function debounce(fn, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    fn.apply(this, args);
+                }, delay);
+            };
+        }
+
+        // Objeto para guardar referencias a las instancias de Vue, para no recrearlas innecesariamente
+        const vueInstances = {};
+
+        // === Configuración de la App de Vue para GESTIÓN DE REPUESTOS (Stock) ===
+        const RepuestosAppConfig = {
+            data: {
+                repuestos: [],
+                repuesto: {
+                    id: null,
+                    nombre: '',
+                    descripcion: '',
+                    precioUnitario: 0.0,
+                    stock: 0
+                },
+                searchQuery: '',
+                idToDelete: null
+            },
+            filters: {
+                formatCurrency: function (value) {
+                    if (typeof value !== "number") {
+                        return value;
+                    }
+                    return value.toLocaleString('es-PE', { style: 'currency', currency: 'PEN' });
+                }
+            },
+            methods: {
+                listarRepuestos: function () {
+                    let url = API_REPUESTOS_URL;
+                    if (this.searchQuery) {
+                        url += '?search=' + encodeURIComponent(this.searchQuery);
+                    }
+                    this.$http.get(url).then(response => {
+                        this.repuestos = response.data;
+                    }).catch(error => {
+                        console.error("Error al obtener los repuestos:", error.response ? error.response.data : error.message);
+                        this.repuestos = [];
+                        alert('Error al cargar los repuestos. Revisa la consola para más detalles.');
+                    });
+                },
+                nuevoRepuesto: function () {
+                    this.repuesto = { id: null, nombres: '', descripcion: '', precioUnitario: 0.0, stock: 0 };
+                    $("#mdlRepuesto").modal("show");
+                },
+                editarRepuesto: function (id) {
+                    this.$http.get(API_REPUESTOS_URL + '/' + id).then(response => {
+                        this.repuesto = response.data;
+                        $("#mdlRepuesto").modal("show");
+                    }).catch(error => {
+                        console.error("Error al obtener el repuesto para editar:", error.response ? error.response.data : error.message);
+                        alert('Error al cargar los datos del repuesto para editar. Revisa la consola.');
+                    });
+                },
+                guardarActualizarRepuesto: function () {
+                    let promise;
+                    this.repuesto.precioUnitario = Number(this.repuesto.precioUnitario);
+                    this.repuesto.stock = Number(this.repuesto.stock);
+
+                    if (this.repuesto.id == null || this.repuesto.id == 0) {
+                        promise = this.$http.post(API_REPUESTOS_URL, this.repuesto);
+                    } else {
+                        promise = this.$http.put(API_REPUESTOS_URL + '/' + this.repuesto.id, this.repuesto);
+                    }
+
+                    promise.then(response => {
+                        alert('Repuesto guardado con éxito!');
+                        $("#mdlRepuesto").modal("hide");
+                        this.listarRepuestos();
+                    }).catch(error => {
+                        console.error("Error al guardar/actualizar repuesto:", error.response ? error.response.data : error.message);
+                        let errorMessage = 'Error al guardar/actualizar repuesto.';
+                        if (error.response && error.response.data) {
+                            if (Array.isArray(error.response.data)) { errorMessage = error.response.data.join(', '); }
+                            else if (error.response.data.message) { errorMessage = error.response.data.message; }
+                            else { errorMessage = JSON.stringify(error.response.data); }
+                        }
+                        alert(errorMessage);
+                    });
+                },
+                eliminarRepuesto: function (id) {
+                    this.idToDelete = id;
+                    $("#mdlEliminar").modal("show");
+                },
+                confirmarEliminacion: function () {
+                    this.$http.delete(API_REPUESTOS_URL + '/' + this.idToDelete).then(response => {
+                        alert('Repuesto eliminado con éxito!');
+                        $("#mdlEliminar").modal("hide");
+                        this.listarRepuestos();
+                        this.idToDelete = null;
+                    }).catch(error => {
+                        console.error("Error al eliminar el repuesto:", error.response ? error.response.data : error.message);
+                        alert('Error al eliminar el repuesto. Revisa la consola.');
+                    });
+                },
+                debouncedSearch: debounce(function() { this.listarRepuestos(); }, 500)
+            },
+            mounted: function () {
+                console.log('RepuestosApp mounted. Fetching data...');
+                this.listarRepuestos();
+            }
+        };
+
+        // === Configuración de la App de Vue para ENTRADA DE REPUESTOS ===
+        const EntradaRepuestosAppConfig = {
+            data: {
+                entrada: { repuestoId: '', cantidad: 1, proveedor: '' },
+                repuestos: [],
+                entradas: [],
+                errors: {}
+            },
+            filters: {
+                formatDate: function(value) { if (!value) return ''; return new Date(value).toLocaleString(); }
+            },
+            methods: {
+                listarRepuestos: function() {
+                    this.$http.get(API_ENTRADAS_REPUESTOS_URL + '/repuestos-disponibles')
+                        .then(response => { this.repuestos = response.data; })
+                        .catch(error => { console.error("Error al obtener repuestos disponibles:", error); alert('Error al cargar la lista de repuestos. Revisa la consola.'); });
+                },
+                listarEntradas: function() {
+                    this.$http.get(API_ENTRADAS_REPUESTOS_URL)
+                        .then(response => { this.entradas = response.data; })
+                        .catch(error => { console.error("Error al obtener entradas de repuestos:", error); alert('Error al cargar las entradas de repuestos. Revisa la consola.'); });
+                },
+                guardarEntrada: function() {
+                    this.errors = {};
+                    this.$http.post(API_ENTRADAS_REPUESTOS_URL, this.entrada)
+                        .then(response => {
+                            alert('Entrada de repuesto registrada con éxito!');
+                            this.entrada = { repuestoId: '', cantidad: 1, proveedor: '' };
+                            this.listarEntradas();
+                            this.listarRepuestos(); // Para actualizar stock visible
+                        })
+                        .catch(error => {
+                            console.error("Error al registrar entrada:", error.response ? error.response.data : error.message);
+                            let errorMessage = 'Error al registrar entrada.';
+                            if (error.response && error.response.data) {
+                                if (Array.isArray(error.response.data)) { errorMessage = error.response.data.join(', '); }
+                                else if (error.response.data.message) { errorMessage = error.response.data.message; }
+                                else { errorMessage = JSON.stringify(error.response.data); }
+                            }
+                            alert('Error al registrar entrada: ' + errorMessage);
+                        });
+                }
+            },
+            mounted: function() {
+                console.log('EntradaRepuestosApp mounted. Fetching data...');
+                this.listarRepuestos();
+                this.listarEntradas();
+            }
+        };
+
+        // === Configuración de la App de Vue para SALIDA DE REPUESTOS ===
+        const SalidaRepuestosAppConfig = {
+            data: {
+                salida: { repuestoId: '', cantidad: 1, mecanicoId: '', servicioIdAsociado: '' },
+                repuestos: [],
+                mecanicos: [],
+                salidas: [],
+                errors: {}
+            },
+            filters: {
+                formatDate: function(value) { if (!value) return ''; return new Date(value).toLocaleString(); }
+            },
+            methods: {
+                listarRepuestos: function() {
+                    this.$http.get(API_SALIDAS_REPUESTOS_URL + '/repuestos-disponibles')
+                        .then(response => { this.repuestos = response.data; })
+                        .catch(error => { console.error("Error al obtener repuestos disponibles:", error); alert('Error al cargar la lista de repuestos. Revisa la consola.'); });
+                },
+                listarMecanicos: function() {
+                    this.$http.get(API_SALIDAS_REPUESTOS_URL + '/mecanicos-disponibles')
+                        .then(response => { this.mecanicos = response.data; })
+                        .catch(error => { console.error("Error al obtener mecánicos disponibles:", error); alert('Error al cargar la lista de mecánicos. Revisa la consola.'); });
+                },
+                listarSalidas: function() {
+                    this.$http.get(API_SALIDAS_REPUESTOS_URL)
+                        .then(response => { this.salidas = response.data; })
+                        .catch(error => { console.error("Error al obtener salidas de repuestos:", error); alert('Error al cargar las salidas de repuestos. Revisa la consola.'); });
+                },
+                guardarSalida: function() {
+                    this.errors = {};
+                    this.$http.post(API_SALIDAS_REPUESTOS_URL, this.salida)
+                        .then(response => {
+                            alert('Salida de repuesto registrada con éxito!');
+                            this.salida = { repuestoId: '', cantidad: 1, mecanicoId: '', servicioIdAsociado: '' };
+                            this.listarSalidas();
+                            this.listarRepuestos(); // Para actualizar stock
+                        })
+                        .catch(error => {
+                            console.error("Error al registrar salida:", error.response ? error.response.data : error.message);
+                            let errorMessage = 'Error al registrar salida.';
+                            if (error.response && error.response.data) {
+                                if (Array.isArray(error.response.data)) { errorMessage = error.response.data.join(', '); }
+                                else if (error.response.data.message) { errorMessage = error.response.data.message; }
+                                else { errorMessage = JSON.stringify(error.response.data); }
+                            }
+                            alert('Error al registrar salida: ' + errorMessage);
+                        });
+                }
+            },
+            mounted: function() {
+                console.log('SalidaRepuestosApp mounted. Fetching data...');
+                this.listarRepuestos();
+                this.listarMecanicos();
+                this.listarSalidas();
+            }
+        };
+
+        // === Configuración de la App de Vue para MOVIMIENTOS ===
+        const MovimientosRepuestosAppConfig = {
+            data: {
+                allMovimientos: [],
+                searchQuery: ''
+            },
+            filters: {
+                formatDate: function(value) { if (!value) return ''; return new Date(value).toLocaleString(); }
+            },
+            computed: {
+                filteredMovimientos: function() {
+                    const query = this.searchQuery.toLowerCase();
+                    if (!query) { return this.allMovimientos; }
+                    return this.allMovimientos.filter(mov => {
+                        return (mov.repuestoNombre && mov.repuestoNombre.toLowerCase().includes(query)) ||
+                               (mov.proveedor && mov.proveedor.toLowerCase().includes(query)) ||
+                               (mov.mecanicoNombre && mov.mecanicoNombre.toLowerCase().includes(query)) ||
+                               (mov.servicioIdAsociado && String(mov.servicioIdAsociado).includes(query)) ||
+                               (mov.tipo.toLowerCase().includes(query));
+                    });
+                }
+            },
+            methods: {
+                fetchAllMovimientos: function() {
+                    const promises = [
+                        this.$http.get(API_ENTRADAS_REPUESTOS_URL),
+                        this.$http.get(API_SALIDAS_REPUESTOS_URL)
+                    ];
+                    Promise.all(promises)
+                        .then(responses => {
+                            const entradas = responses[0].data.map(item => ({
+                                id: item.id, tipo: 'Entrada', repuestoNombre: item.repuestoNombre,
+                                cantidad: item.cantidad, fecha: item.fechaEntrada, proveedor: item.proveedor,
+                                mecanicoNombre: null, servicioIdAsociado: null
+                            }));
+                            const salidas = responses[1].data.map(item => ({
+                                id: item.id, tipo: 'Salida', repuestoNombre: item.repuestoNombre,
+                                cantidad: item.cantidad, fecha: item.fechaSalida, proveedor: null,
+                                mecanicoNombre: item.mecanicoNombres + ' ' + item.mecanicoApellidos,
+                                servicioIdAsociado: item.servicioIdAsociado
+                            }));
+                            this.allMovimientos = [...entradas, ...salidas].sort((a, b) => {
+                                return new Date(b.fecha) - new Date(a.fecha);
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error al obtener movimientos:", error.response ? error.response.data : error.message);
+                            alert('Error al cargar los movimientos. Revisa la consola.');
+                        });
+                },
+                debouncedSearch: debounce(function() { /* search handled by computed prop */ }, 500)
+            },
+            mounted: function() {
+                console.log('MovimientosRepuestosApp mounted. Fetching data...');
+                this.fetchAllMovimientos();
+            }
+        };
+
+        // === Configuración de la App de Vue para CAJERO ===
+        const CajeroAppConfig = {
+            data: {
+                ordenes: [],
+                searchQuery: '',
+                selectedOrdenId: null
+            },
+            filters: {
+                formatCurrency: function (value) {
+                    if (typeof value !== "number") {
+                        return value;
+                    }
+                    return value.toLocaleString('es-PE', { style: 'currency', currency: 'PEN' });
+                },
+                formatDate: function(value) {
+                    if (!value) return '';
+                    return new Date(value).toLocaleString();
+                }
+            },
+            computed: {
+                filteredOrdenes: function() {
+                    const query = this.searchQuery.toLowerCase();
+                    if (!query) {
+                        return this.ordenes;
+                    }
+                    return this.ordenes.filter(orden => {
+                        return (orden.clienteNombres && orden.clienteNombres.toLowerCase().includes(query)) ||
+                               (orden.clienteApellidos && orden.clienteApellidos.toLowerCase().includes(query)) ||
+                               (orden.vehiculoMarca && orden.vehiculoMarca.toLowerCase().includes(query)) ||
+                               (orden.vehiculoModelo && orden.vehiculoModelo.toLowerCase().includes(query)) ||
+                               (orden.vehiculoPlaca && orden.vehiculoPlaca.toLowerCase().includes(query)) ||
+                               (orden.estado && orden.estado.toLowerCase().includes(query));
+                    });
+                }
+            },
+            methods: {
+                listarOrdenes: function () {
+                    let url = API_ORDENES_SERVICIO_URL;
+                    if (this.searchQuery) {
+                        url += '?search=' + encodeURIComponent(this.searchQuery);
+                    }
+                    this.$http.get(url).then(response => {
+                        this.ordenes = response.data;
+                    }).catch(error => {
+                        console.error("Error al obtener las órdenes de servicio:", error.response ? error.response.data : error.message);
+                        this.ordenes = [];
+                        alert('Error al cargar las órdenes de servicio. Revisa la consola para más detalles.');
+                    });
+                },
+                verDetalles: function (ordenId) {
+                    this.selectedOrdenId = ordenId;
+                    console.log("Ver detalles de la orden:", ordenId);
+
+                    this.$http.get(API_ORDENES_SERVICIO_URL + '/' + ordenId).then(response => {
+                        const ordenDetalle = response.data;
+                        let htmlDetalle = `
+                            <h5>FACTURA N° ${ordenDetalle.id}</h5>
+                            <p><strong>Cliente:</strong> ${ordenDetalle.clienteNombres} ${ordenDetalle.clienteApellidos}</p>
+                            <p><strong>Vehículo:</strong> ${ordenDetalle.vehiculoMarca} ${ordenDetalle.vehiculoModelo}</p>
+                            <p><strong>Placa:</strong> ${ordenDetalle.vehiculoPlaca}</p>
+                            <p><strong>Monto Total:</strong> ${this.$options.filters.formatCurrency(ordenDetalle.montoTotal)}</p>
+                            <p><strong>Estado:</strong> ${ordenDetalle.estado}</p>
+                            <p><strong>Fecha:</strong> ${this.$options.filters.formatDate(ordenDetalle.fechaCreacion)}</p>
+                            <p><strong>Descripción:</strong> ${ordenDetalle.descripcionServicio || 'N/A'}</p>
+                            <p class="text-muted">Detalles de ítems (repuestos/servicios) y resumen de factura (subtotal, IGV) se añadirán en futuras fases.</p>
+                        `;
+                        document.getElementById('detalleFacturaContent').innerHTML = htmlDetalle;
+                        $("#mdlDetallesFactura").modal("show");
+                    }).catch(error => {
+                        console.error("Error al obtener detalles de la orden:", error.response ? error.response.data : error.message);
+                        alert('Error al cargar los detalles de la orden. Revisa la consola.');
+                    });
+                },
+                descargarFactura: function () {
+                    alert('Funcionalidad de descarga de factura en desarrollo para la orden: ' + this.selectedOrdenId);
+                    console.log("Descargando factura para la orden:", this.selectedOrdenId);
+                },
+                debouncedSearch: debounce(function() { this.listarOrdenes(); }, 500)
+            },
+            mounted: function () {
+                console.log('CajeroApp mounted. Fetching orders...');
+                this.listarOrdenes();
+            }
+        };
+
+
+        // --- Lógica de Inicialización Centralizada de las Apps Vue ---
+        const mountedVueApps = {};
+
+        function mountOrRefreshVueApp(appConfig, elementId) {
+            if (!document.getElementById(elementId)) {
+                console.warn(`Element #${elementId} not found. Cannot mount Vue app.`);
+                return;
+            }
+
+            if (mountedVueApps[elementId]) {
+                const instance = mountedVueApps[elementId];
+                console.log(`Vue app for #${elementId} already mounted. Refreshing data...`);
+                // Llama a los métodos de listado para refrescar los datos
+                if (instance.listarRepuestos) instance.listarRepuestos();
+                if (instance.listarEntradas) instance.listarEntradas();
+                if (instance.listarMecanicos) instance.listarMecanicos();
+                if (instance.listarSalidas) instance.listarSalidas();
+                if (instance.fetchAllMovimientos) instance.fetchAllMovimientos();
+                if (instance.listarOrdenes) instance.listarOrdenes(); // Para Cajero
+                return;
+            }
+
+            const finalConfig = Object.assign({}, appConfig, { el: `#${elementId}` });
+            const newApp = new Vue(finalConfig);
+            mountedVueApps[elementId] = newApp;
+            console.log(`Vue app for #${elementId} mounted for the first time.`);
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para el módulo de Almacén (pestañas)
+            var almacenTabsEl = document.getElementById('almacenTabs');
+            if (almacenTabsEl) { // Solo si estamos en la página de Almacén
+                const initialActiveTabButton = almacenTabsEl.querySelector('.nav-link.active');
+                if (initialActiveTabButton) {
+                    const defaultActiveTabContentId = initialActiveTabButton.getAttribute('data-bs-target').substring(1);
+                    const defaultActiveAppElementId = defaultActiveTabContentId === 'stockContent' ? 'repuestosApp' :
+                                                      defaultActiveTabContentId === 'entradaContent' ? 'entradaRepuestosApp' :
+                                                      defaultActiveTabContentId === 'salidaContent' ? 'salidaRepuestosApp' :
+                                                      defaultActiveTabContentId === 'movimientosContent' ? 'movimientosRepuestosApp' : null;
+
+                    if (defaultActiveAppElementId) {
+                        mountOrRefreshVueApp(
+                            defaultActiveAppElementId === 'repuestosApp' ? RepuestosAppConfig :
+                            defaultActiveAppElementId === 'entradaRepuestosApp' ? EntradaRepuestosAppConfig :
+                            defaultActiveAppElementId === 'salidaRepuestosApp' ? SalidaRepuestosAppConfig :
+                            MovimientosRepuestosAppConfig,
+                            defaultActiveAppElementId
+                        );
+                    }
+                }
+
+                almacenTabsEl.addEventListener('shown.bs.tab', function (event) {
+                    const targetTabId = event.target.id;
+                    switch (targetTabId) {
+                        case 'stock-tab':
+                            mountOrRefreshVueApp(RepuestosAppConfig, 'repuestosApp');
+                            break;
+                        case 'entrada-tab':
+                            mountOrRefreshVueApp(EntradaRepuestosAppConfig, 'entradaRepuestosApp');
+                            break;
+                        case 'salida-tab':
+                            mountOrRefreshVueApp(SalidaRepuestosAppConfig, 'salidaRepuestosApp');
+                            break;
+                        case 'movimientos-tab':
+                            mountOrRefreshVueApp(MovimientosRepuestosAppConfig, 'movimientosRepuestosApp');
+                            break;
+                    }
+                });
+            }
+
+            // Lógica para el módulo de Cajero (independiente de las pestañas de Almacén)
+            const cajeroAppElement = document.getElementById('cajeroApp');
+            if (cajeroAppElement) { // Solo si estamos en la página de Cajero
+                mountOrRefreshVueApp(CajeroAppConfig, 'cajeroApp');
+            }
+        });
+    </script>
+</body>
+</html>
