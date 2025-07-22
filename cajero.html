@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{_layout}">
+<head>
+    <title>Módulo de Cajero</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content" id="cajeroApp" class="container mt-4" v-cloak>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Módulo de Cajero</h2>
+            <p class="text-muted">Gestión de órdenes de servicio y pagos.</p>
+        </div>
+        <button class="btn btn-success" @click="abrirModalNuevaOrden">
+            <i class="fas fa-plus me-2"></i>Registrar Orden
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>N° Orden</th>
+                    <th>Cliente</th>
+                    <th>Vehículo</th>
+                    <th>Placa</th>
+                    <th class="text-end">Monto</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="orden in ordenes" :key="orden.id">
+                    <td>{{ orden.id }}</td>
+                    <td>{{ orden.clienteNombres }} {{ orden.clienteApellidos }}</td>
+                    <td>{{ orden.vehiculoMarca }} {{ orden.vehiculoModelo }}</td>
+                    <td>{{ orden.vehiculoPlaca }}</td>
+                    <td class="text-end">{{ formatCurrency(orden.montoTotal) }}</td>
+                    <td class="text-center">
+                        <button class="btn btn-info btn-sm" @click="verDetalles(orden.id)">Ver Detalles</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="mdlNuevaOrden" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Registrar Nueva Orden</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="guardarNuevaOrden">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-success"><i class="fas fa-user me-2"></i>Datos del Propietario</h6>
+                                <div class="row mb-3">
+                                    <div class="col-sm-6"><label class="form-label">Nombres</label><input type="text" class="form-control" v-model="nuevaOrden.cliente.nombres" required></div>
+                                    <div class="col-sm-6"><label class="form-label">Apellidos</label><input type="text" class="form-control" v-model="nuevaOrden.cliente.apellidos" required></div>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-sm-6"><label class="form-label">DNI</label><input type="text" class="form-control" v-model="nuevaOrden.cliente.dni" required maxlength="8"></div>
+                                    <div class="col-sm-6"><label class="form-label">RUC (Opcional)</label><input type="text" class="form-control" v-model="nuevaOrden.cliente.ruc" maxlength="11"></div>
+                                </div>
+
+                                <h6 class="text-success"><i class="fas fa-car me-2"></i>Datos del Vehículo</h6>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><label class="form-label">Placa</label><input type="text" class="form-control" v-model="nuevaOrden.vehiculo.placa" required></div>
+                                    <div class="col-sm-4"><label class="form-label">Marca</label><input type="text" class="form-control" v-model="nuevaOrden.vehiculo.marca" required></div>
+                                    <div class="col-sm-4"><label class="form-label">Modelo</label><input type="text" class="form-control" v-model="nuevaOrden.vehiculo.modelo" required></div>
+                                </div>
+                                
+                                <h6 class="text-success"><i class="fas fa-cogs me-2"></i>Estado de la Orden</h6>
+                                <div class="row mb-3">
+                                     <div class="col-12">
+                                        <label class="form-label">Estado</label>
+                                        <select class="form-select" v-model="nuevaOrden.estado" required>
+                                            <option value="EN PROCESO">En Proceso</option>
+                                            <option value="FINALIZADO">Finalizado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-success"><i class="fas fa-list-alt me-2"></i>Detalles del Servicio</h6>
+                                <table class="table table-bordered table-sm">
+                                    <thead class="table-light"><tr><th>Descripción</th><th style="width: 80px;">Cant.</th><th style="width: 110px;">P.U.</th><th style="width: 110px;">Importe</th><th style="width: 50px;"></th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="(detalle, index) in nuevaOrden.detalles" :key="index">
+                                            <td><input type="text" class="form-control form-control-sm" v-model="detalle.descripcion" required></td>
+                                            <td><input type="number" class="form-control form-control-sm" v-model.number="detalle.cantidad" min="1" required></td>
+                                            <td><input type="number" class="form-control form-control-sm" v-model.number="detalle.precioUnitario" step="0.01" min="0" required></td>
+                                            <td><input type="text" class="form-control-plaintext form-control-sm text-end" :value="formatCurrency(detalle.cantidad * detalle.precioUnitario)" readonly></td>
+                                            <td><button type="button" class="btn btn-danger btn-sm" @click="quitarDetalle(index)"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-primary btn-sm mb-3" @click="agregarDetalle"><i class="fas fa-plus me-1"></i> Agregar Fila</button>
+                                <hr>
+                                <div class="d-flex justify-content-end">
+                                    <h4 class="d-flex justify-content-between mt-2 w-100">
+                                        <span>TOTAL:</span><strong>{{ formatCurrency(totalNuevaOrden) }}</strong>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer mt-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Guardar Orden</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="mdlDetallesFactura" tabindex="-1" aria-hidden="true">
+        </div>
+</div>
+
+<script layout:fragment="script">
+    const API_ORDENES_URL = '/api/ordenes-servicio';
+
+    const CajeroAppConfig = {
+        data: {
+            ordenes: [],
+            selectedOrdenId: null,
+            nuevaOrden: {
+                cliente: { nombres: '', apellidos: '', dni: '', ruc: '' }, // RUC añadido
+                vehiculo: { placa: '', marca: '', modelo: '' },
+                usuarioId: 1,
+                detalles: [],
+                estado: 'EN PROCESO' // Estado añadido con valor por defecto
+            },
+            modalNuevaOrden: null,
+            modalDetalles: null
+        },
+        computed: {
+            totalNuevaOrden() {
+                if (!this.nuevaOrden.detalles || this.nuevaOrden.detalles.length === 0) return 0;
+                return this.nuevaOrden.detalles.reduce((total, item) => {
+                    return total + ((item.cantidad || 0) * (item.precioUnitario || 0));
+                }, 0);
+            }
+        },
+        methods: {
+            listarOrdenes() {
+                this.$http.get(API_ORDENES_URL).then(response => {
+                    this.ordenes = response.data;
+                });
+            },
+            abrirModalNuevaOrden() {
+                // Reinicia el formulario incluyendo los nuevos campos
+                this.nuevaOrden = {
+                    cliente: { nombres: '', apellidos: '', dni: '', ruc: '' },
+                    vehiculo: { placa: '', marca: '', modelo: '' },
+                    usuarioId: 1,
+                    detalles: [{ descripcion: '', cantidad: 1, precioUnitario: 0.0 }],
+                    estado: 'EN PROCESO' // Valor por defecto al abrir
+                };
+                this.modalNuevaOrden.show();
+            },
+            agregarDetalle() {
+                this.nuevaOrden.detalles.push({ descripcion: '', cantidad: 1, precioUnitario: 0.0 });
+            },
+            quitarDetalle(index) {
+                this.nuevaOrden.detalles.splice(index, 1);
+            },
+            guardarNuevaOrden() {
+                const ordenParaEnviar = { ...this.nuevaOrden, montoTotal: this.totalNuevaOrden };
+                this.$http.post(API_ORDENES_URL, ordenParaEnviar).then(() => {
+                    this.modalNuevaOrden.hide();
+                    this.listarOrdenes();
+                });
+            },
+            verDetalles(ordenId) {
+                this.selectedOrdenId = ordenId;
+                this.$http.get(`${API_ORDENES_URL}/${ordenId}`).then(response => {
+                    const orden = response.data;
+                    const montoTotal = orden.montoTotal || 0;
+                    const subtotal = montoTotal / 1.18;
+                    const igv = montoTotal - subtotal;
+                    const fecha = new Date(orden.fechaCreacion).toLocaleDateString('es-PE', {
+                        day: '2-digit', month: 'long', year: 'numeric'
+                    });
+
+                    let estadoPagoHtml = '';
+                    if (orden.estadoPago === 'PENDIENTE') {
+                        estadoPagoHtml = `<span class="badge bg-warning text-dark fs-6">PENDIENTE</span>`;
+                    } else if (orden.estadoPago === 'PAGADO') {
+                        estadoPagoHtml = `<span class="badge bg-success fs-6">PAGADO</span>`;
+                    } else {
+                        estadoPagoHtml = `<span class="badge bg-secondary fs-6">${orden.estadoPago || 'NO ESPECIFICADO'}</span>`;
+                    }
+
+                    let detallesHtml = '';
+                    if (orden.detalles && orden.detalles.length > 0) {
+                        detallesHtml = orden.detalles.map(item => `
+                            <tr>
+                                <td>${item.cantidad}</td>
+                                <td>${item.descripcion}</td>
+                                <td class="text-end">${this.formatCurrency(item.precioUnitario)}</td>
+                                <td class="text-end">${this.formatCurrency(item.cantidad * item.precioUnitario)}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        detallesHtml = `<tr><td colspan="4" class="text-center text-muted">No hay detalles registrados.</td></tr>`;
+                    }
+
+                    document.getElementById('detalleFacturaContent').innerHTML = `
+                        <div class="p-3" id="factura-imprimible">
+                            <h4 class="text-center mb-4 text-success">ORDEN DE SERVICIO N° ${String(orden.id).padStart(5, '0')}</h4>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Cliente:</strong> ${orden.clienteNombres} ${orden.clienteApellidos}</p>
+                                    <p><strong>Vehículo:</strong> ${orden.vehiculoMarca} ${orden.vehiculoModelo}</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <p class="mb-1"><strong>Placa:</strong> ${orden.vehiculoPlaca}</p>
+                                    <p><strong>Fecha:</strong> ${fecha}</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                               <h5 class="mb-3">Detalle de Servicios</h5>
+                               <h5>Estado: ${estadoPagoHtml}</h5>
+                            </div>
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                    <tr><th>Cant.</th><th>Descripción</th><th class="text-end">P. Unitario</th><th class="text-end">Importe</th></tr>
+                                </thead>
+                                <tbody>${detallesHtml}</tbody>
+                            </table>
+                            <hr>
+                            <div class="row justify-content-end">
+                                <div class="col-md-5">
+                                    <p class="d-flex justify-content-between mb-1"><span>Subtotal:</span> <span>${this.formatCurrency(subtotal)}</span></p>
+                                    <p class="d-flex justify-content-between mb-1"><span>I.G.V. (18%):</span> <span>${this.formatCurrency(igv)}</span></p>
+                                    <h5 class="d-flex justify-content-between mt-2"><span>TOTAL:</span> <strong>${this.formatCurrency(montoTotal)}</strong></h5>
+                                </div>
+                            </div>
+                        </div>`;
+                    this.modalDetalles.show();
+                });
+            },
+            imprimirFactura() {
+                const contenido = document.getElementById('factura-imprimible').innerHTML;
+                const ventana = window.open('', 'PRINT', 'height=600,width=800');
+                ventana.document.write('<html><head><title>Orden de Servicio</title>');
+                ventana.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+                ventana.document.write('</head><body>');
+                ventana.document.write(contenido);
+                ventana.document.write('</body></html>');
+                ventana.document.close();
+                ventana.focus();
+                setTimeout(() => {
+                    ventana.print();
+                    ventana.close();
+                }, 500);
+            },
+            formatCurrency(value) {
+                if (typeof value !== 'number') return 'S/ 0.00';
+                return `S/ ${value.toFixed(2)}`;
+            }
+        },
+        mounted() {
+            this.listarOrdenes();
+            this.modalNuevaOrden = new bootstrap.Modal(document.getElementById('mdlNuevaOrden'));
+            this.modalDetalles = new bootstrap.Modal(document.getElementById('mdlDetallesFactura'));
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const cajeroAppElement = document.getElementById('cajeroApp');
+        if (cajeroAppElement) {
+            new Vue({
+                el: '#cajeroApp',
+                ...CajeroAppConfig
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
