@@ -51,13 +51,9 @@ public class OrdenServicioController {
         Optional<OrdenServicio> ordenData = repository.findById(id);
         if (ordenData.isPresent()) {
             OrdenServicio orden = ordenData.get();
-            try {
-                EstadoOrden nuevoEstado = EstadoOrden.valueOf(body.get("estado").toUpperCase());
-                orden.setEstado(nuevoEstado);
-                return new ResponseEntity<>(repository.save(orden), HttpStatus.OK);
-            } catch (IllegalArgumentException e) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // estado inválido
-            }
+            String nuevoEstado = body.get("estado");
+            orden.setEstado(nuevoEstado);
+            return new ResponseEntity<>(repository.save(orden), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

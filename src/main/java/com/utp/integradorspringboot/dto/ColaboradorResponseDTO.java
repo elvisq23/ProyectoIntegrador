@@ -4,7 +4,7 @@ import com.utp.integradorspringboot.models.Usuario;
 import com.utp.integradorspringboot.models.Rol; 
 import java.util.stream.Collectors; 
 public class ColaboradorResponseDTO {
-    private Long id;
+    private Integer id;
     private String nombres;
     private String apellidos;
     private String dni;
@@ -39,8 +39,8 @@ public class ColaboradorResponseDTO {
     }
 
    
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
     public String getNombres() { return nombres; }
     public void setNombres(String nombres) { this.nombres = nombres; }
     public String getApellidos() { return apellidos; }

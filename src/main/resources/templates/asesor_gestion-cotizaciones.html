@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html layout:decorate="_layout">
+<head xmlns:th="http://www.thymeleaf.org">
+  <title>MetalCars - Gestión de Cotizaciones</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <style>
+    .main-content {
+      margin-right: 240px;
+      padding: 100px 3rem;
+    }
+    .table td, .table th {
+      vertical-align: middle;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content" id="app">
+  <div class="main-content">
+    <!-- Alertas de éxito/error -->
+    <div v-if="alerta.mostrar" :class="['alert', alerta.tipo, 'alert-dismissible', 'fade', 'show']" role="alert" style="max-width:600px;margin:auto;">
+      {{ alerta.mensaje }}
+      <button type="button" class="btn-close" @click="alerta.mostrar=false"></button>
+    </div>
+    <!-- Fin alertas -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="mb-0">Gestión de Cotizaciones</h2>
+      <input type="text" v-model="busqueda" class="form-control" placeholder="Buscar por cliente o vehículo..." style="width: 500px; margin-left: auto;">
+    </div>
+
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Vehículo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in entidadesFiltradas" :key="item.id">
+          <td>{{ item.id }}</td>
+          <td>{{ item.cliente }}</td>
+          <td>{{ item.vehiculo }}</td>
+          <td>{{ item.estado }}</td>
+          <td>
+            <div class="d-flex justify-content-center">
+              <button v-if="item.estado === 'PENDIENTE'" class="btn btn-sm btn-primary me-1" @click="abrirEmision(item)">Emitir</button>
+              <button v-if="item.estado === 'EMITIDO'" class="btn btn-sm btn-success me-1" @click="abrirAprobacion(item)">Aprobar</button>
+              <button v-if="item.estado === 'EMITIDO' || item.estado === 'APROBADO'" class="btn btn-sm btn-outline-info me-1" @click="descargarPdf(item)"><i class="bi bi-file-earmark-pdf"></i> Ver Detalle</button>
+              <button v-if="item.estado === 'PENDIENTE' || item.estado === 'EMITIDO'" class="btn btn-sm btn-danger me-1" @click="confirmarEliminar(item)"><i class="bi bi-trash"></i> Eliminar</button>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="entidadesFiltradas.length === 0">
+          <td colspan="5" class="text-center text-muted">No hay cotizaciones registradas.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Emisión -->
+  <div class="modal fade" id="modalEmision" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Emitir Cotización</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Repuesto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in repuestos" :key="r.id">
+                <td><input type="checkbox" :checked="form.detalles.some(d => d.repuestoId === r.id)" @change="toggleRepuesto(r.id)"></td>
+                <td>{{ r.nombre }}</td>
+                <td>S/ {{ r.precioUnitario.toFixed(2) }}</td>
+                <td>
+                  <input type="number" class="form-control" min="1"
+                         v-if="form.detalles.some(d => d.repuestoId === r.id)"
+                         v-model.number="form.detalles.find(d => d.repuestoId === r.id).cantidad">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Total:</strong> S/ {{ totalCotizacion.toFixed(2) }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" @click="emitir">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Aprobación -->
+  <div class="modal fade" id="modalAprobacion" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Aprobar Cotización</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro que deseas aprobar esta cotización?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-success" @click="aprobar">Aprobar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Eliminación -->
+  <div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro que deseas eliminar esta cotización? Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-danger" @click="eliminar">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.6.1/vue-resource.min.js"></script>
+<script layout:fragment="script">
+  new Vue({
+    el: "#app",
+    data: {
+      entidades: [],
+      busqueda: '',
+      form: {
+        id: null,
+        detalles: [],
+      },
+      idAprobacion: null,
+      repuestos: [],
+      alerta: { mostrar: false, mensaje: '', tipo: 'alert-success' },
+      idEliminar: null,
+    },
+    computed: {
+      entidadesFiltradas() {
+        const filtro = this.busqueda.toLowerCase();
+        return this.entidades.filter(item =>
+          item.cliente.toLowerCase().includes(filtro) ||
+          item.vehiculo.toLowerCase().includes(filtro)
+        );
+      },
+      totalCotizacion() {
+        return this.form.detalles.reduce((sum, item) => {
+          const r = this.repuestos.find(r => r.id === item.repuestoId);
+          return sum + (r ? r.precioUnitario * item.cantidad : 0);
+        }, 0);
+      }
+    },
+    methods: {
+      listar() {
+        this.$http.get('/api/cotizaciones').then(res => {
+          this.entidades = res.data;
+        });
+      },
+      cargarRepuestos() {
+        this.$http.get('/api/repuestos').then(res => {
+          this.repuestos = res.data;
+        });
+      },
+      abrirEmision(item) {
+        this.form.id = item.id;
+        this.form.detalles = [];
+        this.cargarRepuestos();
+        new bootstrap.Modal(document.getElementById('modalEmision')).show();
+      },
+      toggleRepuesto(id) {
+        const idx = this.form.detalles.findIndex(d => d.repuestoId === id);
+        if (idx >= 0) {
+          this.form.detalles.splice(idx, 1);
+        } else {
+          this.form.detalles.push({ repuestoId: id, cantidad: 1 });
+        }
+      },
+      emitir() {
+        if (this.form.detalles.length === 0) {
+          alert("Completa todos los campos antes de guardar.");
+          return;
+        }
+        this.$http.put(`/api/cotizaciones/${this.form.id}/emitir`, this.form)
+          .then(() => {
+            this.listar();
+            bootstrap.Modal.getInstance(document.getElementById('modalEmision')).hide();
+            alert("Cotización emitida correctamente");
+          })
+          .catch(error => {
+            console.error("Error al emitir cotización:", error);
+            alert("Ocurrió un error al emitir la cotización");
+          });
+      },
+      abrirAprobacion(item) {
+        this.idAprobacion = item.id;
+        new bootstrap.Modal(document.getElementById('modalAprobacion')).show();
+      },
+      aprobar() {
+        this.$http.put(`/api/cotizaciones/${this.idAprobacion}/aprobar`).then(() => {
+          this.listar();
+          bootstrap.Modal.getInstance(document.getElementById('modalAprobacion')).hide();
+          alert("Cotización aprobada correctamente");
+        });
+      },
+      verDetalle(item) {
+        console.log("Detalle de:", item);
+      },
+      confirmarEliminar(item) {
+        this.idEliminar = item.id;
+        new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+      },
+      eliminar() {
+        this.$http.delete(`/api/cotizaciones/${this.idEliminar}`)
+          .then(() => {
+            this.listar();
+            bootstrap.Modal.getInstance(document.getElementById('modalEliminar')).hide();
+            this.mostrarAlerta('Cotización eliminada correctamente', 'alert-success');
+          })
+          .catch(error => {
+            let msg = 'Ocurrió un error al eliminar la cotización';
+            if (error.bodyText) msg = error.bodyText;
+            this.mostrarAlerta(msg, 'alert-danger');
+          });
+      },
+      descargarPdf(item) {
+        window.open(`/api/cotizaciones/${item.id}/pdf`, '_blank');
+      },
+      mostrarAlerta(msg, tipo) {
+        this.alerta.mensaje = msg;
+        this.alerta.tipo = tipo;
+        this.alerta.mostrar = true;
+        setTimeout(() => { this.alerta.mostrar = false; }, 3500);
+      }
+    },
+    mounted() {
+      this.listar();
+    }
+  });
+</script>
+</body>
+</html>

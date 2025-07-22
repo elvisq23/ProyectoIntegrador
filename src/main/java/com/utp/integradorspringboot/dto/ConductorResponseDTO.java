@@ -6,7 +6,7 @@ import com.utp.integradorspringboot.models.Rol;
 import java.util.Optional;
 
 public class ConductorResponseDTO {
-    private Long id;
+    private Integer id;
     private String nombres;
     private String apellidos;
     private String dni;       // <--- ¡AGREGAR ESTE!
@@ -38,8 +38,8 @@ public class ConductorResponseDTO {
     }
 
     // Getters y Setters (asegúrate de generarlos para dni, telefono y estado también)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
     public String getNombres() { return nombres; }
     public void setNombres(String nombres) { this.nombres = nombres; }
     public String getApellidos() { return apellidos; }

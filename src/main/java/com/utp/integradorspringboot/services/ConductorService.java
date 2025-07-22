@@ -36,7 +36,8 @@ public class ConductorService {
     }
 
     public Optional<Usuario> getConductorById(Long id) {
-        return usuarioRepository.findById(id)
+        Integer idInt = id != null ? id.intValue() : null;
+        return usuarioRepository.findById(idInt)
                 .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "ROLE_CONDUCTOR".equals(rol.getNombre())));
     }
 
@@ -73,18 +74,19 @@ public class ConductorService {
 
     @Transactional
     public Usuario updateConductor(Long id, ConductorRequest request) {
-        Usuario existingConductor = usuarioRepository.findById(id)
+        Integer idInt = id != null ? id.intValue() : null;
+        Usuario existingConductor = usuarioRepository.findById(idInt)
                 .orElseThrow(() -> new RuntimeException("Conductor no encontrado con ID: " + id));
 
         usuarioRepository.findByCorreo(request.getCorreo())
             .ifPresent(u -> {
-                if (!u.getId().equals(id)) {
+                if (!u.getId().equals(idInt)) {
                     throw new IllegalArgumentException("El correo ya está en uso por otro usuario.");
                 }
             });
         usuarioRepository.findByDni(request.getDni())
             .ifPresent(u -> {
-                if (!u.getId().equals(id)) {
+                if (!u.getId().equals(idInt)) {
                     throw new IllegalArgumentException("El DNI ya está en uso por otro usuario.");
                 }
             });
@@ -112,7 +114,8 @@ public class ConductorService {
 
     @Transactional
     public void deactivateConductor(Long id) {
-        Usuario conductor = usuarioRepository.findById(id)
+        Integer idInt = id != null ? id.intValue() : null;
+        Usuario conductor = usuarioRepository.findById(idInt)
             .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "ROLE_CONDUCTOR".equals(rol.getNombre())))
             .orElseThrow(() -> new RuntimeException("Conductor no encontrado con ID: " + id + " o no tiene el rol de CONDUCTOR."));
 

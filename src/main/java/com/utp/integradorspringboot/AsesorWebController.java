@@ -21,4 +21,13 @@ public class AsesorWebController {
     public String VehiculoPage() {
         return "asesor_vehiculo";
     }
+    
+    @GetMapping("/asesor_asignar-mecanico")
+    public String AsignarMecanico() {
+        return "asesor_asignar-mecanico";
+    }
+    @GetMapping("/asesor_gestion-cotizaciones")
+    public String GestionarCotizaciones() {
+        return "asesor_gestion-cotizaciones";
+    }
 }

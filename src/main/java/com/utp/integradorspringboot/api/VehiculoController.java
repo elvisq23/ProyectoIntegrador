@@ -61,7 +61,8 @@ public class VehiculoController {
 
     @GetMapping("/vehiculos/{id}")
     public ResponseEntity<Vehiculo> getVehiculoById(@PathVariable("id") Long id) {
-        Optional<Vehiculo> vehiculoData = vehiculoRepository.findById(id);
+        Integer idInt = id != null ? id.intValue() : null;
+        Optional<Vehiculo> vehiculoData = vehiculoRepository.findById(idInt);
 
         if (vehiculoData.isPresent()) {
             return new ResponseEntity<>(vehiculoData.get(), HttpStatus.OK);
@@ -72,7 +73,8 @@ public class VehiculoController {
 
     @PutMapping("/vehiculos/{id}")
     public ResponseEntity<Vehiculo> updateVehiculo(@PathVariable("id") Long id, @RequestBody Vehiculo vehiculo) {
-        Optional<Vehiculo> vehiculoData = vehiculoRepository.findById(id);
+        Integer idInt = id != null ? id.intValue() : null;
+        Optional<Vehiculo> vehiculoData = vehiculoRepository.findById(idInt);
 
         if (vehiculoData.isPresent()) {
             Vehiculo _vehiculo = vehiculoData.get();
@@ -92,7 +94,8 @@ public class VehiculoController {
     @DeleteMapping("/vehiculos/{id}")
     public ResponseEntity<HttpStatus> deleteVehiculo(@PathVariable("id") Long id) {
         try {
-            vehiculoRepository.deleteById(id);
+            Integer idInt = id != null ? id.intValue() : null;
+            vehiculoRepository.deleteById(idInt);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             System.err.println("Error al eliminar vehículo: " + e.getMessage());

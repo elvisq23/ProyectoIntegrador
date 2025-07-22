@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Optional<Usuario> findByCorreo(String correo);
     Optional<Usuario> findByDni(String dni);
 
@@ -38,10 +38,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     List<Usuario> findActiveColaboradoresBySearchQuery(@Param("roleNames") List<String> roleNames, @Param("searchQuery") String searchQuery);
 
     @Query("SELECT u FROM Usuario u JOIN FETCH u.sede s JOIN u.roles r WHERE u.id = :id AND r.nombre IN :roleNames")
-    Optional<Usuario> findByIdAndRoles_NombreIn(@Param("id") Long id, @Param("roleNames") List<String> roleNames);
+    Optional<Usuario> findByIdAndRoles_NombreIn(@Param("id") Integer id, @Param("roleNames") List<String> roleNames);
 
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.sede s LEFT JOIN FETCH u.roles r WHERE u.id = :id")
-    Optional<Usuario> findByIdWithDetails(@Param("id") Long id);
+    Optional<Usuario> findByIdWithDetails(@Param("id") Integer id);
 
     Optional<Usuario> findByCorreoIgnoreCase(String correo);
 }

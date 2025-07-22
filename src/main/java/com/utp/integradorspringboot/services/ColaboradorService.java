@@ -59,8 +59,9 @@ public class ColaboradorService {
     @Transactional(readOnly = true)
     public Optional<Usuario> getColaboradorById(Long id) {
         List<String> rolesFiltrados = getValidColaboratorRoleNames();
+        Integer idInt = id != null ? id.intValue() : null;
    
-        return usuarioRepository.findByIdAndRoles_NombreIn(id, rolesFiltrados);
+        return usuarioRepository.findByIdAndRoles_NombreIn(idInt, rolesFiltrados);
     }
 
     @Transactional
@@ -117,18 +118,19 @@ public class ColaboradorService {
     @Transactional
     public Usuario updateColaborador(Long id, ColaboradorRequestDTO request) {
         List<String> rolesFiltrados = getValidColaboratorRoleNames();
-        Usuario existingColaborador = usuarioRepository.findByIdAndRoles_NombreIn(id, rolesFiltrados)
+        Integer idInt = id != null ? id.intValue() : null;
+        Usuario existingColaborador = usuarioRepository.findByIdAndRoles_NombreIn(idInt, rolesFiltrados)
                 .orElseThrow(() -> new RuntimeException("Colaborador no encontrado con ID: " + id + " o no tiene un rol de COLABORADOR."));
 
         usuarioRepository.findByCorreo(request.getCorreo())
                 .ifPresent(u -> {
-                    if (!u.getId().equals(id)) {
+                    if (u.getId() != null && id != null && !u.getId().equals(id.intValue())) {
                         throw new IllegalArgumentException("El correo ya está en uso por otro usuario.");
                     }
                 });
         usuarioRepository.findByDni(request.getDni())
                 .ifPresent(u -> {
-                    if (!u.getId().equals(id)) {
+                    if (u.getId() != null && id != null && !u.getId().equals(id.intValue())) {
                         throw new IllegalArgumentException("El DNI ya está en uso por otro usuario.");
                     }
                 });
@@ -171,7 +173,8 @@ public class ColaboradorService {
     @Transactional
     public void deactivateColaborador(Long id) {
         List<String> rolesFiltrados = getValidColaboratorRoleNames();
-        Usuario colaborador = usuarioRepository.findByIdAndRoles_NombreIn(id, rolesFiltrados)
+        Integer idInt = id != null ? id.intValue() : null;
+        Usuario colaborador = usuarioRepository.findByIdAndRoles_NombreIn(idInt, rolesFiltrados)
                 .orElseThrow(() -> new RuntimeException("Colaborador no encontrado con ID: " + id + " o no tiene un rol de COLABORADOR."));
 
         colaborador.setEstado(false);

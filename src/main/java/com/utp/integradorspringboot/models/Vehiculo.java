@@ -11,7 +11,7 @@ public class Vehiculo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "nombres", length = 100)
     private String nombres;
@@ -34,6 +34,9 @@ public class Vehiculo implements Serializable {
     @Column(name = "color", length = 30)
     private String color;
 
+    @Column(name = "cliente_id")
+    private Integer clienteId;
+
     public Vehiculo() {
     }
 
@@ -47,7 +50,7 @@ public class Vehiculo implements Serializable {
         this.color = color;
     }
 
-    public Vehiculo(Long id, String nombres, String apellidos, String marca, String modelo, String placa, Integer anio, String color) {
+    public Vehiculo(Integer id, String nombres, String apellidos, String marca, String modelo, String placa, Integer anio, String color) {
         this.id = id;
         this.nombres = nombres;
         this.apellidos = apellidos;
@@ -58,13 +61,17 @@ public class Vehiculo implements Serializable {
         this.color = color;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
+
+    // Métodos sobrecargados para compatibilidad con Integer y Long
+    public void setId(Long id) { this.id = id != null ? id.intValue() : null; }
+    public Long getIdAsLong() { return id != null ? id.longValue() : null; }
 
     public String getNombres() {
         return nombres;
@@ -121,6 +128,9 @@ public class Vehiculo implements Serializable {
     public void setColor(String color) {
         this.color = color;
     }
+
+    public Integer getClienteId() { return clienteId; }
+    public void setClienteId(Integer clienteId) { this.clienteId = clienteId; }
 
     @Override
     public int hashCode() {
