@@ -53,6 +53,11 @@ public class GerenteWebController {
         return "gerente_servicios";
     }
 
+    @GetMapping("/inventario")
+    public String InventarioPage() {
+        return "gerente_inventario";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("totalColaboradores", dashboardService.contarColaboradores());

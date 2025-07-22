@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout_gerente">
+<head>
+    <title>Gestión de Repuestos</title>
+    <style>
+        .main-content {
+            margin-right: 240px;
+            padding: 80px 2rem 2rem 2rem;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .search-input {
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" id="repuestosApp" class="container mt-4">
+    <h1>Gestión de Repuestos</h1>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Buscar por nombre o proveedor..." v-model="search" @input="debouncedSearch">
+    </div>
+
+    <p class="text-end">
+        <button class="btn btn-primary" @click="nuevo">Nuevo Repuesto</button>
+    </p>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio Unitario</th>
+            <th>Stock</th>
+            <th>Proveedor</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in entidades" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.descripcion }}</td>
+            <td>S/. {{ item.precioUnitario.toFixed(2) }}</td>
+            <td>{{ item.stock }}</td>
+            <td>{{ item.proveedor?.razonSocial || 'N/A' }}</td>
+            <td class="text-end">
+                <button class="btn btn-info btn-sm me-1" @click="editar(item.id)" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" @click="eliminar(item.id)" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+        <tr v-if="entidades.length === 0">
+            <td colspan="7" class="text-center">No hay repuestos registrados.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Modal Crear/Editar -->
+    <div class="modal fade" id="mdlEntidad" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ entidad.id ? 'Editar Repuesto' : 'Nuevo Repuesto' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Nombre</label>
+                        <input class="form-control" v-model="entidad.nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Descripción</label>
+                        <textarea class="form-control" v-model="entidad.descripcion" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label>Precio Unitario</label>
+                        <input type="number" class="form-control" v-model.number="entidad.precioUnitario" min="0" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label>Stock</label>
+                        <input type="number" class="form-control" v-model.number="entidad.stock" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label>Proveedor</label>
+                        <select class="form-select" v-model="entidad.proveedor.id">
+                            <option v-for="prov in proveedores" :value="prov.id">{{ prov.razonSocial }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @click="entidad.id ? actualizar() : guardar()">
+                        {{ entidad.id ? 'Actualizar' : 'Guardar' }}
+                    </button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar -->
+    <div class="modal fade" id="mdlEliminar" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar Repuesto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">¿Estás seguro de eliminar este repuesto?</div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" @click="confirmarEliminacion">Eliminar</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    const API_REPUESTOS_URL = '/api/repuestos';
+    const API_PROVEEDORES_URL = '/api/proveedores';
+
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    new Vue({
+        el: '#repuestosApp',
+        data: {
+            entidades: [],
+            proveedores: [],
+            entidad: { id: null, nombre: '', descripcion: '', precioUnitario: 0, stock: 0, proveedor: { id: null } },
+            search: '',
+            idToDelete: null
+        },
+        methods: {
+            listar() {
+                this.$http.get(API_REPUESTOS_URL).then(res => this.entidades = res.data);
+            },
+            cargarProveedores() {
+                this.$http.get(API_PROVEEDORES_URL).then(res => this.proveedores = res.data);
+            },
+            nuevo() {
+                this.entidad = { id: null, nombre: '', descripcion: '', precioUnitario: 0, stock: 0, proveedor: { id: null } };
+                this.cargarProveedores();
+                $('#mdlEntidad').modal('show');
+            },
+            editar(id) {
+                this.$http.get(`${API_REPUESTOS_URL}/${id}`).then(res => {
+                    this.entidad = res.data;
+                    if (!this.entidad.proveedor) this.entidad.proveedor = { id: null };
+                    this.cargarProveedores();
+                    $('#mdlEntidad').modal('show');
+                });
+            },
+            guardar() {
+                this.$http.post(API_REPUESTOS_URL, this.entidad).then(() => {
+                    this.listar();
+                    $('#mdlEntidad').modal('hide');
+                });
+            },
+            actualizar() {
+                this.$http.put(`${API_REPUESTOS_URL}/${this.entidad.id}`, this.entidad).then(() => {
+                    this.listar();
+                    $('#mdlEntidad').modal('hide');
+                });
+            },
+            eliminar(id) {
+                this.idToDelete = id;
+                $('#mdlEliminar').modal('show');
+            },
+            confirmarEliminacion() {
+                this.$http.delete(`${API_REPUESTOS_URL}/${this.idToDelete}`).then(() => {
+                    this.listar();
+                    $('#mdlEliminar').modal('hide');
+                    this.idToDelete = null;
+                });
+            },
+            debouncedSearch: debounce(function () {
+                const filtro = this.search.toLowerCase();
+                if (!filtro) {
+                    this.listar();
+                } else {
+                    this.entidades = this.entidades.filter(r =>
+                        r.nombre.toLowerCase().includes(filtro) ||
+                        (r.proveedor?.razonSocial || '').toLowerCase().includes(filtro)
+                    );
+                }
+            }, 400)
+        },
+        mounted() {
+            this.listar();
+        }
+    });
+</script>
+</body>
+</html>
