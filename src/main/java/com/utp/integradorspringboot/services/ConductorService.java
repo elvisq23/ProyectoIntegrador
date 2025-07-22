@@ -30,15 +30,14 @@ public class ConductorService {
 
     public List<Usuario> getAllConductores(String searchQuery) {
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            return usuarioRepository.findActiveConductoresBySearchQuery("ROLE_CONDUCTOR", searchQuery);
+            return usuarioRepository.findActiveConductoresBySearchQuery("CONDUCTOR", searchQuery);
         }
-        return usuarioRepository.findByRoles_NombreAndEstadoTrue("ROLE_CONDUCTOR");
+        return usuarioRepository.findByRoles_NombreAndEstadoTrue("CONDUCTOR");
     }
 
     public Optional<Usuario> getConductorById(Long id) {
-        Integer idInt = id != null ? id.intValue() : null;
-        return usuarioRepository.findById(idInt)
-                .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "ROLE_CONDUCTOR".equals(rol.getNombre())));
+        return usuarioRepository.findById(id)
+                .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "CONDUCTOR".equals(rol.getNombre())));
     }
 
     @Transactional
@@ -63,7 +62,7 @@ public class ConductorService {
         nuevoConductor.setFechaRegistro(LocalDateTime.now());
         nuevoConductor.setEstado(request.getEstado() != null ? request.getEstado() : true);
 
-        Rol rolConductor = rolRepository.findByNombre("ROLE_CONDUCTOR")
+        Rol rolConductor = rolRepository.findByNombre("CONDUCTOR")
                                     .orElseThrow(() -> new RuntimeException("Rol CONDUCTOR no encontrado. ¡Debe existir en la BD!"));
         Set<Rol> roles = new HashSet<>();
         roles.add(rolConductor);
@@ -74,19 +73,18 @@ public class ConductorService {
 
     @Transactional
     public Usuario updateConductor(Long id, ConductorRequest request) {
-        Integer idInt = id != null ? id.intValue() : null;
-        Usuario existingConductor = usuarioRepository.findById(idInt)
+        Usuario existingConductor = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Conductor no encontrado con ID: " + id));
 
         usuarioRepository.findByCorreo(request.getCorreo())
             .ifPresent(u -> {
-                if (!u.getId().equals(idInt)) {
+                if (!u.getId().equals(id)) {
                     throw new IllegalArgumentException("El correo ya está en uso por otro usuario.");
                 }
             });
         usuarioRepository.findByDni(request.getDni())
             .ifPresent(u -> {
-                if (!u.getId().equals(idInt)) {
+                if (!u.getId().equals(id)) {
                     throw new IllegalArgumentException("El DNI ya está en uso por otro usuario.");
                 }
             });
@@ -103,7 +101,7 @@ public class ConductorService {
 
         existingConductor.setEstado(request.getEstado() != null ? request.getEstado() : existingConductor.getEstado());
 
-        Rol rolConductor = rolRepository.findByNombre("ROLE_CONDUCTOR")
+        Rol rolConductor = rolRepository.findByNombre("CONDUCTOR")
                                     .orElseThrow(() -> new RuntimeException("Rol CONDUCTOR no encontrado. ¡Debe existir en la BD!"));
         if (!existingConductor.getRoles().contains(rolConductor)) {
             existingConductor.addRol(rolConductor);
@@ -114,9 +112,8 @@ public class ConductorService {
 
     @Transactional
     public void deactivateConductor(Long id) {
-        Integer idInt = id != null ? id.intValue() : null;
-        Usuario conductor = usuarioRepository.findById(idInt)
-            .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "ROLE_CONDUCTOR".equals(rol.getNombre())))
+        Usuario conductor = usuarioRepository.findById(id)
+            .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "CONDUCTOR".equals(rol.getNombre())))
             .orElseThrow(() -> new RuntimeException("Conductor no encontrado con ID: " + id + " o no tiene el rol de CONDUCTOR."));
 
         conductor.setEstado(false);
