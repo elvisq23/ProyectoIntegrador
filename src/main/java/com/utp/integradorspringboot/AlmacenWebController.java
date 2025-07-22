@@ -18,5 +18,10 @@ public class AlmacenWebController {
         return "almacen_stock";
     }
 
-    // Aquí puedes seguir agregando más vistas del rol almacen
+    @GetMapping("/repuestos")
+    public String RepuestosPage() {
+        return "almacen_repuestos";
+    }
+
+
 }

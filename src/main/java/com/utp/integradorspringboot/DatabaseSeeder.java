@@ -1,15 +1,7 @@
 package com.utp.integradorspringboot;
 
-import com.utp.integradorspringboot.models.Rol;
-import com.utp.integradorspringboot.models.Sede;
-import com.utp.integradorspringboot.models.Usuario;
-import com.utp.integradorspringboot.models.Proveedor;
-import com.utp.integradorspringboot.models.Servicio;
-import com.utp.integradorspringboot.repositories.RolRepository;
-import com.utp.integradorspringboot.repositories.SedeRepository;
-import com.utp.integradorspringboot.repositories.UsuarioRepository;
-import com.utp.integradorspringboot.repositories.ProveedorRepository;
-import com.utp.integradorspringboot.repositories.ServicioRepository;
+import com.utp.integradorspringboot.models.*;
+import com.utp.integradorspringboot.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +24,8 @@ public class DatabaseSeeder {
     private ProveedorRepository proveedorRepository;
     @Autowired
     private ServicioRepository servicioRepository;
+    @Autowired
+    private RepuestoRepository repuestoRepository;
 
     @Bean
     public CommandLineRunner seedDatabase() {
@@ -41,6 +35,7 @@ public class DatabaseSeeder {
             seedUsuariosYRoles();
             seedProveedores();
             seedServicios();
+            seedRepuestos();
         };
     }
 
@@ -145,4 +140,31 @@ public class DatabaseSeeder {
         }
     }
 
+    private void seedRepuestos() {
+        if (repuestoRepository.count() == 0) {
+            List<Proveedor> proveedores = proveedorRepository.findAll();
+            repuestoRepository.saveAll(List.of(
+                    new Repuesto("Filtro de Aceite", "Marca Bosch", new BigDecimal("35.00"), 120, proveedores.get(0)),
+                    new Repuesto("Llanta", "Marca Premium 185/65 R15", new BigDecimal("50.00"), 5, proveedores.get(1)),
+                    new Repuesto("Batería", "12V 60Ah", new BigDecimal("180.00"), 10, proveedores.get(2)),
+                    new Repuesto("Aceite 10W-30", "Lubricante semi-sintético", new BigDecimal("80.00"), 35, proveedores.get(0)),
+                    new Repuesto("Pastillas de Freno", "Delanteras, marca TRW", new BigDecimal("120.00"), 18, proveedores.get(3)),
+                    new Repuesto("Amortiguador", "Delantero derecho, Monroe", new BigDecimal("250.00"), 12, proveedores.get(1)),
+                    new Repuesto("Filtro de Aire", "Marca Mann", new BigDecimal("30.00"), 60, proveedores.get(4)),
+                    new Repuesto("Correa de Distribución", "Motor Toyota", new BigDecimal("95.00"), 20, proveedores.get(5)),
+                    new Repuesto("Espejo Retrovisor", "Derecho, eléctrico", new BigDecimal("110.00"), 9, proveedores.get(6)),
+                    new Repuesto("Radiador", "Chevrolet Spark", new BigDecimal("320.00"), 7, proveedores.get(7)),
+                    new Repuesto("Alternador", "Toyota Yaris", new BigDecimal("400.00"), 5, proveedores.get(3)),
+                    new Repuesto("Sensor de Oxígeno", "Bosch Universal", new BigDecimal("140.00"), 15, proveedores.get(2)),
+                    new Repuesto("Bujías", "Juego de 4, NGK", new BigDecimal("60.00"), 40, proveedores.get(0)),
+                    new Repuesto("Filtro de Cabina", "Antialérgico", new BigDecimal("45.00"), 25, proveedores.get(1)),
+                    new Repuesto("Bombilla LED", "Faros delanteros", new BigDecimal("55.00"), 100, proveedores.get(4)),
+                    new Repuesto("Kit de Embrague", "Hyundai Accent", new BigDecimal("480.00"), 6, proveedores.get(6)),
+                    new Repuesto("Manguera de Radiador", "Inferior", new BigDecimal("30.00"), 20, proveedores.get(5)),
+                    new Repuesto("Motor de Arranque", "Nuevo", new BigDecimal("390.00"), 4, proveedores.get(7)),
+                    new Repuesto("Tapa de Distribuidor", "Motor Honda", new BigDecimal("65.00"), 14, proveedores.get(2)),
+                    new Repuesto("Termostato", "Toyota Corolla", new BigDecimal("70.00"), 11, proveedores.get(1))
+            ));
+        }
+    }
 }
