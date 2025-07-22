@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout_gerente">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .main-content {
+            margin-right: 240px;
+            padding: 80px 2rem 2rem 2rem;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div class="container mt-5">
+            <h2 class="mb-4">Dashboard</h2>
+
+            <div class="row">
+                <!-- Tarjetas resumen -->
+                <div class="col-md-2">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Colaboradores</h5>
+                            <p class="card-text" th:text="${totalColaboradores}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Conductores</h5>
+                            <p class="card-text" th:text="${totalConductores}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Sedes</h5>
+                            <p class="card-text" th:text="${totalSedes}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Servicios</h5>
+                            <p class="card-text" th:text="${totalServicios}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Proveedores</h5>
+                            <p class="card-text" th:text="${totalProveedores}">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <h5>Gráfico de Roles</h5>
+                    <canvas id="rolesChart" width="400" height="400"></canvas>
+                </div>
+
+                <div class="col-md-6">
+                    <h5>Gráfico de Totales</h5>
+                    <canvas id="totalesChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Script Thymeleaf + Chart.js -->
+        <script th:inline="javascript">
+            const totalColaboradores = [[${ totalColaboradores }]];
+            const totalConductores = [[${ totalConductores }]];
+            const totalSedes = [[${ totalSedes }]];
+            const totalServicios = [[${ totalServicios }]];
+            const totalProveedores = [[${ totalProveedores }]];
+
+            const ctxRoles = document.getElementById('rolesChart').getContext('2d');
+            new Chart(ctxRoles, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Colaboradores', 'Conductores'],
+                    datasets: [{
+                        label: 'Roles',
+                        data: [totalColaboradores, totalConductores],
+                        backgroundColor: ['#007bff', '#28a745'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+
+            const ctx = document.getElementById('totalesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Colaboradores', 'Conductores', 'Sedes', 'Servicios', 'Proveedores'],
+                    datasets: [{
+                        label: 'Totales',
+                        data: [totalColaboradores, totalConductores, totalSedes, totalServicios, totalProveedores],
+                        backgroundColor: [
+                            'rgba(0, 123, 255, 0.6)',
+                            'rgba(40, 167, 69, 0.6)',
+                            'rgba(23, 162, 184, 0.6)',
+                            'rgba(255, 193, 7, 0.6)',
+                            'rgba(220, 53, 69, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 123, 255, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0
+                        }
+                    }
+                }
+            });
+        </script>
+    </main>
+
+</body>
+
+</html>
+
+
+<!--
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="_layout_gerente">
+
+<head>
+    <title>UTP Integrador - Gerente</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .main-content {
+            margin-right: 240px;
+            padding: 80px 2rem 2rem 2rem;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+
+<main layout:fragment="content">
+    <div class="container mt-4">
+        <h1>Dashboard</h1>
+        <div class="row text-center mt-4">
+
+            <div class="col-md-4 mb-3">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">👷 Colaboradores</h5>
+                        <p class="card-text h3 font-weight-bold text-primary">[[${totalColaboradores}]]</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h5 class="card-title">🚗 Conductores</h5>
+                        <p class="card-text h3 font-weight-bold text-success">[[${totalConductores}]]</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <h5 class="card-title">🏢 Sedes</h5>
+                        <p class="card-text h3 font-weight-bold text-info">[[${totalSedes}]]</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">🛠️ Servicios</h5>
+                        <p class="card-text h3 font-weight-bold text-warning">[[${totalServicios}]]</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">🏭 Proveedores</h5>
+                        <p class="card-text h3 font-weight-bold text-danger">[[${totalProveedores}]]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        &lt;!&ndash; GRAFICOS &ndash;&gt;
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header">📊 Distribución de Roles</div>
+                    <div class="card-body chart-container">
+                        <canvas id="rolesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header">📈 Totales por Categoría</div>
+                    <div class="card-body chart-container">
+                        <canvas id="totalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+    const totalColaboradores = [[${totalColaboradores}]];
+    const totalConductores = [[${totalConductores}]];
+    const totalSedes = [[${totalSedes}]];
+    const totalServicios = [[${totalServicios}]];
+    const totalProveedores = [[${totalProveedores}]];
+
+    const ctxRoles = document.getElementById('rolesChart').getContext('2d');
+    const rolesChart = new Chart(ctxRoles, {
+        type: 'doughnut',
+        data: {
+            labels: ['Colaboradores', 'Conductores'],
+            datasets: [{
+                label: 'Roles',
+                data: [totalColaboradores, totalConductores],
+                backgroundColor: ['#007bff', '#28a745'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    const ctx = document.getElementById('totalesChart').getContext('2d');
+    const totalesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Colaboradores', 'Conductores', 'Sedes', 'Servicios', 'Proveedores'],
+            datasets: [{
+                label: 'Totales',
+                data: [totalColaboradores, totalConductores, totalSedes, totalServicios, totalProveedores],
+                backgroundColor: [
+                    'rgba(0, 123, 255, 0.6)',
+                    'rgba(40, 167, 69, 0.6)',
+                    'rgba(23, 162, 184, 0.6)',
+                    'rgba(255, 193, 7, 0.6)',
+                    'rgba(220, 53, 69, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(0, 123, 255, 1)',
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(23, 162, 184, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(220, 53, 69, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    precision: 0
+                }
+            }
+        }
+    });
+</script>
+</main>
+
+</body>
+
+</html>-->

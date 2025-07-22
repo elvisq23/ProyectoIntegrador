@@ -34,4 +34,8 @@ public class ProveedorService {
     public void deleteProveedor(Long id) {
         proveedorRepository.deleteById(id);
     }
+
+    public long count() {
+        return proveedorRepository.count();
+    }
 }

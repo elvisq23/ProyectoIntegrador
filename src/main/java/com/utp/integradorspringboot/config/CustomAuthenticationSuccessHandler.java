@@ -32,7 +32,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 response.sendRedirect("/dueno/dashboard");
                 return;
             } else if (role.equals("ROLE_GERENTE")) {
-                response.sendRedirect("/gerente/colaboradores");
+                response.sendRedirect("/gerente/dashboard");
                 return;
             } else if (role.equals("ROLE_MECANICO")) {
                 response.sendRedirect("/mecanico/asignaciones");

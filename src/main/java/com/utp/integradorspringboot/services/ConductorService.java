@@ -119,4 +119,8 @@ public class ConductorService {
         conductor.setEstado(false);
         usuarioRepository.save(conductor);
     }
+
+    public long count() {
+        return usuarioRepository.count();
+    }
 }

@@ -24,4 +24,8 @@ public class SedeService {
     public Optional<Sede> getSedeById(Long id) {
         return sedeRepository.findById(id);
     }
+
+    public long count() {
+        return sedeRepository.count();
+    }
 }

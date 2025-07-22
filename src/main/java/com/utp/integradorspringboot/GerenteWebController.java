@@ -1,12 +1,22 @@
 package com.utp.integradorspringboot;
 
+import com.utp.integradorspringboot.repositories.ProveedorRepository;
+import com.utp.integradorspringboot.repositories.SedeRepository;
+import com.utp.integradorspringboot.repositories.ServicioRepository;
+import com.utp.integradorspringboot.repositories.UsuarioRepository;
+import com.utp.integradorspringboot.services.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/gerente") // prefijo común si deseas agrupar
 public class GerenteWebController {
+
+    @Autowired
+    private DashboardService dashboardService;
 
     @GetMapping("/asignacion")
     public String AsignacionesDelGerentePage() {
@@ -41,5 +51,15 @@ public class GerenteWebController {
     @GetMapping("/servicios")
     public String Serviciospage() {
         return "gerente_servicios";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        model.addAttribute("totalColaboradores", dashboardService.contarColaboradores());
+        model.addAttribute("totalConductores", dashboardService.contarConductores());
+        model.addAttribute("totalSedes", dashboardService.contarSedes());
+        model.addAttribute("totalServicios", dashboardService.contarServicios());
+        model.addAttribute("totalProveedores", dashboardService.contarProveedores());
+        return "gerente_dashboard";
     }
 }

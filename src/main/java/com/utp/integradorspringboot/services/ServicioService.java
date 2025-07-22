@@ -24,4 +24,8 @@ public class ServicioService {
     public Optional<Servicio> getServicioById(Long id) {
         return servicioRepository.findById(id);
     }
+
+    public long count() {
+        return servicioRepository.count();
+    }
 }

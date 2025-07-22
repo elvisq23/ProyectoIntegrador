@@ -44,4 +44,13 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByIdWithDetails(@Param("id") Long id);
 
     Optional<Usuario> findByCorreoIgnoreCase(String correo);
+
+    // 1. Todos los usuarios con rol "CONDUCTOR"
+    @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r.nombre = 'CONDUCTOR' AND u.estado = true")
+    List<Usuario> findAllConductoresActivos();
+
+    // 2. Todos los usuarios que NO tienen rol "DUEÑO" NI "CONDUCTOR"
+    @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r.nombre NOT IN ('DUEÑO', 'CONDUCTOR') AND u.estado = true")
+    List<Usuario> findAllColaboradoresActivosExcluyendoDuenoYConductor();
+
 }
